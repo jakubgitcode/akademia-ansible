@@ -1,0 +1,35 @@
+---
+# Rola loadbalancer — nginx rozkładający ruch na serwery aplikacji z grupy loadbalancer_grupa_backendow.
+
+- name: Zainstaluj nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Wgraj konfigurację load balancera
+  ansible.builtin.template:
+    src: naszaaplikacja.conf.j2
+    dest: /etc/nginx/sites-available/naszaaplikacja
+    mode: '0644'
+  notify: Przeładuj nginx
+
+- name: Włącz konfigurację load balancera
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/naszaaplikacja
+    dest: /etc/nginx/sites-enabled/naszaaplikacja
+    state: link
+  notify: Przeładuj nginx
+
+- name: Wyłącz domyślną stronę nginx
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Przeładuj nginx
+
+- name: Nginx działa i startuje z systemem
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

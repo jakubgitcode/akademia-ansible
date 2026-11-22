@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+upstream naszaaplikacja {
+{% for host in groups[loadbalancer_grupa_backendow] %}
+    server {{ hostvars[host].ansible_facts.default_ipv4.address }}:{{ loadbalancer_port_backendow }};
+{% endfor %}
+}
+
+server {
+    listen {{ loadbalancer_port }} default_server;
+
+    location / {
+        proxy_pass http://naszaaplikacja;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}

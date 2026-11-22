@@ -1,0 +1,4 @@
+---
+# Zmienne dla grupy prod (w naszym inventory: web02).
+# L5, krok 4 (ROZWIĄZANIE: linia odkomentowana)
+ciekawa_zmienna: "z group_vars/prod.yml"

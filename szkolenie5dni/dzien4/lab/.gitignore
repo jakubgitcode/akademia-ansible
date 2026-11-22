@@ -1,0 +1,4 @@
+# Zależności z Galaxy instalujemy z requirements.yml — nie trzymamy ich w repozytorium
+galaxy/
+# Hasła do vault nigdy nie trafiają do repozytorium
+.vault*

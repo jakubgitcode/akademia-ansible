@@ -1,0 +1,18 @@
+---
+# Przykład ze slajdów 42–44 (blok 3): playbook generuje plik konfiguracyjny z szablonu templates/aplikacja.conf.j2.
+# Lokalnie, bez hostów:
+#   ansible-playbook konfiguracja.yml                             # changed=1, potem: cat /tmp/aplikacja.conf
+#   ansible-playbook konfiguracja.yml                             # 2. raz: changed=0
+#   ansible-playbook konfiguracja.yml -e aplikacja_port=9090 --check --diff # które linie by się zmieniły
+- name: Konfiguracja z szablonu
+  hosts: localhost
+  vars:
+    aplikacja: sklep
+    aplikacja_port: 8080
+    backendy: [web01, web02]
+  tasks:
+    - name: Wygeneruj plik konfiguracyjny
+      ansible.builtin.template:
+        src: aplikacja.conf.j2     # szuka w templates/
+        dest: /tmp/aplikacja.conf
+        mode: "0644"

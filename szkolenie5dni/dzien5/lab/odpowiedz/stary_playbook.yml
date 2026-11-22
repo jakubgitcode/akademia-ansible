@@ -1,0 +1,39 @@
+---
+# L20, krok 2 — ten sam playbook po poprawkach (ROZWIĄZANIE): ansible-lint bez uwag w profilu production.
+- name: Standard serwerów WWW
+  hosts: webservers
+  become: true
+  tasks:
+    # package-latest: present zamiast latest; lista w name zamiast with_items
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - htop
+          - vim
+        state: present
+        update_cache: true
+
+    # risky-octal: uprawnienia jako napis
+    - name: Company motd
+      ansible.builtin.copy:
+        content: "Serwer zarzadzany przez Ansible"
+        dest: /etc/motd
+        mode: "0644"
+
+    # command-instead-of-module: moduł service zamiast polecenia
+    - name: Restart cron
+      ansible.builtin.service:
+        name: cron
+        state: restarted
+
+    # no-changed-when, risky-shell-pipe: odczyt to nie zmiana; pipefail — błąd df nie zginie w potoku
+    - name: Check disk
+      ansible.builtin.shell:
+        cmd: set -o pipefail && df -h | grep /dev/
+        executable: /bin/bash
+      register: dysk
+      changed_when: false
+
+    - name: Show disk usage
+      ansible.builtin.debug:
+        var: dysk.stdout_lines

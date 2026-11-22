@@ -1,0 +1,16 @@
+---
+# site.yml — cały projekt jednym poleceniem:
+#   ansible-playbook site.yml
+# Kolejność warstw: baza (L13) → aplikacja (L11) → load balancer (L14).
+
+# L13: tu dopiszesz play warstwy bazy danych
+
+- name: Warstwa aplikacji
+  hosts: appservers
+  become: true
+
+  # TODO (L11, krok 5): przenieś tu pre_tasks i post_tasks z wgraj_aplikacje.yml
+  #                     i zamień [] na listę z jedną rolą: aplikacja
+  roles: []
+
+# L14: tu dopiszesz play warstwy load balancera

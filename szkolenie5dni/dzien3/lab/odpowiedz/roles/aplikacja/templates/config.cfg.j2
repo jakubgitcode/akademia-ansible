@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+[config]
+nazwa = {{ aplikacja_nazwa }}
+srodowisko = {{ srodowisko | default('nieznane') }}
+wersja = {{ aplikacja_wersja }}
+port = {{ aplikacja_port }}
+{% if aplikacja_baza_host %}
+
+[baza]
+host = {{ aplikacja_baza_host }}
+uzytkownik = {{ aplikacja_baza_uzytkownik }}
+haslo = {{ aplikacja_baza_haslo }}
+nazwa = {{ aplikacja_baza_nazwa }}
+{% endif %}

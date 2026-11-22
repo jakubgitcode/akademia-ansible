@@ -1,0 +1,46 @@
+---
+# Pokaz Windows (prowadzący). Wymaga hosta Windows, pip install pywinrm (dla WinRM) i kolekcji ansible.windows.
+#   ansible-playbook -i windows/hosts.yml windows/windows.yml
+- name: Serwer Windows — IIS i strona
+  hosts: windows
+  gather_facts: true
+
+  tasks:
+    - name: Połączenie działa
+      ansible.windows.win_ping:
+
+    - name: System z faktów
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts.os_name }} {{ ansible_facts.distribution_version }}"
+
+    - name: Rola IIS
+      ansible.windows.win_feature:
+        name: Web-Server
+        include_management_tools: true
+        state: present
+      register: iis
+
+    - name: Restart, jeśli instalacja go wymaga
+      ansible.windows.win_reboot:
+      when: iis.reboot_required
+
+    - name: Strona startowa
+      ansible.windows.win_copy:
+        content: "<h1>{{ inventory_hostname }} — zarządzany przez Ansible</h1>"
+        dest: C:\inetpub\wwwroot\index.html
+
+    - name: Usługa IIS działa i startuje z systemem
+      ansible.windows.win_service:
+        name: W3SVC
+        state: started
+        start_mode: auto
+
+    - name: Polecenie PowerShell, gdy nie ma modułu
+      ansible.windows.win_powershell:
+        script: Get-Service W3SVC | Select-Object Status, StartType
+      register: usluga
+      changed_when: false
+
+    - name: Wynik PowerShell
+      ansible.builtin.debug:
+        var: usluga.output

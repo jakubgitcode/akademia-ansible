@@ -1,0 +1,12 @@
+---
+# Zmienne warstwy aplikacji (hosty z grupy appservers): parametry roli aplikacja (ROZWIĄZANIE).
+
+# L11, krok 7: group_vars wygrywa z defaults roli
+aplikacja_nazwa: "Nasza aplikacja — produkcja"
+
+# L13, krok 7: spięcie z bazą. Adresu bazy nie wpisujemy na sztywno: to adres IP pierwszego hosta z grupy
+# databases, odczytany z jego faktów. Dodasz drugą bazę albo przeniesiesz ją na inny host — zmieniasz tylko inventory.
+aplikacja_baza_host: "{{ hostvars[groups['databases'][0]].ansible_facts.default_ipv4.address }}"
+aplikacja_baza_nazwa: "{{ db_nazwa }}"
+aplikacja_baza_uzytkownik: "{{ db_uzytkownik }}"
+aplikacja_baza_haslo: "{{ db_haslo }}"

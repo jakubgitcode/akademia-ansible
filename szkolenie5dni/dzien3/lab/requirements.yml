@@ -1,0 +1,14 @@
+---
+# Zależności projektu z Ansible Galaxy (L12). Instalacja:
+#   ansible-galaxy install -r requirements.yml
+# Wersje zawsze przypięte: projekt działa tak samo za rok i na każdym komputerze.
+
+roles:
+  - name: geerlingguy.mysql
+    version: "6.5.0"
+
+collections:
+  # geerlingguy.mysql używa modułów community.mysql.*. Od wersji 5 kolekcja ostrzega, że moduły przeniesiono
+  # do ansible.mysql, a w 6.0.0 stare nazwy znikną — dlatego górna granica: < 6.0.0.
+  - name: community.mysql
+    version: ">=5.0.0,<6.0.0"

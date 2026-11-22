@@ -1,0 +1,32 @@
+---
+# L4 — Krok 6: ta sama instalacja przez shell i przez moduł
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml shell_kontra_modul.yml --check
+#   ansible-playbook -i inventory/hosts.yml shell_kontra_modul.yml
+#   ansible-playbook -i inventory/hosts.yml shell_kontra_modul.yml     # drugi raz: porównaj statusy
+#
+# Krok 7: dopisz zadanie z parametrem creates (TODO na końcu pliku)
+
+- name: Shell kontra moduł
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: Odśwież listę pakietów (tylko gdy starsza niż godzina)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Instalacja przez shell — tak jak w skrypcie
+      ansible.builtin.shell: apt-get install -y cowsay
+
+    - name: Instalacja modułem — opisujemy stan, a nie polecenie
+      ansible.builtin.apt:
+        name: cowsay
+        state: present
+
+    # TODO (krok 7): dopisz zadanie, które wygeneruje klucz SSH poleceniem
+    #   ssh-keygen -q -N '' -f /tmp/akademia/klucz
+    # i nie uruchomi go ponownie, jeśli plik /tmp/akademia/klucz już istnieje (parametr creates).

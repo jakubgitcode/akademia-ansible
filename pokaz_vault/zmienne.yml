@@ -1,0 +1,6 @@
+---
+# Jawne zmienne: odnośniki do wartości zaszyfrowanych w vault.yml (wzorzec z L16).
+# grep api_token pokaże, skąd bierze się wartość, choć sama wartość jest zaszyfrowana.
+api_token: "{{ vault_api_token }}"
+baza_haslo: "{{ vault_baza_haslo }}"
+uzytkownicy: "{{ vault_uzytkownicy }}"

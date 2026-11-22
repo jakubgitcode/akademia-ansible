@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Host: {{ inventory_hostname }} | środowisko: {{ srodowisko | default('nieznane') }}
+
+app={{ app_name }}
+port={{ app_port }}
+log_level={{ app_log_level | default('info') }}
+debug={{ app_debug | ternary('true', 'false') }}
+replicas={{ app_replicas }}

@@ -1,0 +1,40 @@
+---
+# L7, krok 4 (jeśli zdążysz) — konfiguracja per środowisko
+# Uruchomienie:
+#   ansible-playbook konfiguracja_srodowisk.yml
+#
+# Uzupełnij miejsca oznaczone # TODO.
+# Ten playbook jest WSPÓLNY dla dev i prod — różnice pochodzą WYŁĄCZNIE ze zmiennych w inventory/group_vars/.
+
+- name: Konfiguracja aplikacji per środowisko
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    - name: Katalog konfiguracji
+      ansible.builtin.file:
+        path: /etc/szkolenie
+        state: directory
+        mode: '0755'
+
+    - name: Wygeneruj konfigurację środowiskową
+      # TODO: moduł ansible.builtin.template
+      #       src: templates/app_env.conf.j2   (obejrzyj szablon: default() i ternary())
+      #       dest: /etc/szkolenie/app_env.conf
+      #       mode: '0644'
+
+    - name: Włącz flagę kopii zapasowej (tylko produkcja)
+      # TODO: moduł ansible.builtin.copy
+      #       content: "backup=true\n"
+      #       dest: /etc/szkolenie/backup_enabled, mode: '0644'
+      #       warunek: host w grupie prod (group_names)
+
+    # GOTOWE — te same zmienne, różne wartości na każdym hoście
+    - name: Podsumowanie hosta
+      ansible.builtin.debug:
+        msg: >
+          {{ inventory_hostname }} → środowisko: {{ srodowisko | default('BRAK — uzupełnij group_vars!') }},
+          log_level={{ app_log_level | default('info') }},
+          repliki={{ app_replicas }},
+          debug={{ app_debug }}

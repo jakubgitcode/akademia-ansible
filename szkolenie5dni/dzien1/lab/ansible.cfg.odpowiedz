@@ -1,0 +1,15 @@
+# L1, część B — konfiguracja projektu (ROZWIĄZANIE). Skopiuj jako ansible.cfg:
+#   cp ansible.cfg.odpowiedz ansible.cfg
+# Ansible czyta ansible.cfg z bieżącego katalogu (o ile katalog nie jest zapisywalny dla wszystkich).
+# Sprawdzenie, co zmieniliśmy względem ustawień domyślnych:
+#   ansible-config dump --only-changed
+
+[defaults]
+# domyślne inventory: od teraz bez "-i inventory/hosts.yml"
+inventory = inventory/hosts.yml
+# czas każdego zadania i podsumowanie najwolniejszych (wtyczka z kolekcji ansible.posix)
+callbacks_enabled = ansible.posix.profile_tasks
+
+[ssh_connection]
+# mniej połączeń SSH na zadanie = szybciej (wymaga sudo bez requiretty; na Ubuntu domyślnie OK)
+pipelining = True

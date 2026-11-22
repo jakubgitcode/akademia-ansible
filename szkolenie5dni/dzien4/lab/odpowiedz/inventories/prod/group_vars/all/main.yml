@@ -1,0 +1,9 @@
+---
+# Zmienne środowiska PROD wspólne dla wszystkich warstw (ROZWIĄZANIE).
+srodowisko: prod
+
+db_nazwa: naszaaplikacja
+db_uzytkownik: naszaaplikacja
+# Wartość w zaszyfrowanym vault.yml obok. Tu jawny odnośnik: grep znajdzie, skąd bierze się hasło.
+db_haslo: "{{ vault_db_haslo }}"
+db_haslo_root: "{{ vault_db_haslo_root }}"     # hasło roota MySQL

@@ -1,0 +1,4 @@
+Raport serwera {{ inventory_hostname }}
+Adres IP:       {{ ansible_facts.default_ipv4.address }}
+System:         {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+Błędy w logu:   {{ bledy.stdout }}

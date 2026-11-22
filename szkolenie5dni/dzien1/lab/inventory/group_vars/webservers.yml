@@ -1,0 +1,4 @@
+---
+# Zmienne dla grupy webservers (to grupa nadrzędna dla dev i prod).
+# L5, krok 3: odkomentuj poniższą linię.
+# ciekawa_zmienna: "z group_vars/webservers.yml"

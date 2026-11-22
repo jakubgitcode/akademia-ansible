@@ -1,0 +1,7 @@
+---
+# Kolekcje projektu — AWX instaluje je przy synchronizacji projektu (katalog collections/).
+collections:
+  # geerlingguy.mysql używa modułów community.mysql.*. Od wersji 5 kolekcja ostrzega, że moduły przeniesiono
+  # do ansible.mysql, a w 6.0.0 stare nazwy znikną — dlatego górna granica: < 6.0.0.
+  - name: community.mysql
+    version: ">=5.0.0,<6.0.0"

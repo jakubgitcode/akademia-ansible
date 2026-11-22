@@ -1,0 +1,18 @@
+---
+# Zmienne WSPÓLNE dla wszystkich środowisk (katalog group_vars obok site.yml) — parametry roli geerlingguy.mysql.
+# Wartości różne w dev i prod (nazwy, hasła) pochodzą ze zmiennych z inventories/<środowisko>/group_vars/all/.
+
+mysql_root_password: "{{ db_haslo_root }}"
+mysql_python_package_debian: python3-pymysql
+mysql_bind_address: "0.0.0.0"
+# Nie pokazuj haseł użytkowników w wyniku (rola włącza wtedy no_log) — L16
+mysql_hide_passwords: true
+
+mysql_databases:
+  - name: "{{ db_nazwa }}"
+
+mysql_users:
+  - name: "{{ db_uzytkownik }}"
+    password: "{{ db_haslo }}"
+    host: "%"
+    priv: "{{ db_nazwa }}.*:ALL"

@@ -1,0 +1,29 @@
+---
+# L4 — Krok 8: własny playbook od zera (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml moj_pierwszy_playbook_odpowiedz.yml
+# Sprawdzenie:
+#   ansible webservers -i inventory/hosts.yml -m command -a "cat /tmp/host_is_ready"
+
+- name: Host gotowy do pracy
+  hosts: webservers
+  gather_facts: false
+
+  tasks:
+
+    - name: Plik /tmp/host_is_ready z szablonu
+      ansible.builtin.template:
+        src: templates/host_is_ready_odpowiedz.j2
+        dest: /tmp/host_is_ready
+        mode: '0644'
+
+    # Ten sam efekt modułem copy z parametrem content (dobre dla krótkiej, stałej treści):
+    # - name: Plik /tmp/host_is_ready z treścią OK
+    #   ansible.builtin.copy:
+    #     content: "OK\n"
+    #     dest: /tmp/host_is_ready
+    #     mode: '0644'
+    #
+    # A tak NIE: shell z echo zgłasza zmianę przy każdym uruchomieniu i nie działa w --check
+    # - name: Plik przez shell
+    #   ansible.builtin.shell: echo OK > /tmp/host_is_ready

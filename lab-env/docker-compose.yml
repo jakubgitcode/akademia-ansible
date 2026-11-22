@@ -1,0 +1,35 @@
+# Środowisko labowe: 4 hosty zarządzane (web01–web04) z systemd + sshd.
+# SSH z Twojej maszyny: web0N -> 127.0.0.1:222N   (web01 2221 … web04 2224)
+# HTTP:                 web0N -> http://localhost:808N (web01 8081 … web04 8084)
+# Szkolenie pięciodniowe: dni 1–2 używają web01 i web02, dzień 3 dokłada web03 (skalowanie),
+# dzień 4 — web04 (osobny host środowiska dev).
+x-node: &node
+  build:
+    context: .
+    dockerfile: Dockerfile.node
+  privileged: true            # potrzebne dla systemd w kontenerze
+  cgroup: host
+  tmpfs: [/run, /run/lock]
+  restart: unless-stopped     # po restarcie maszyny (np. w chmurze po nocy) hosty wstają same
+
+services:
+  web01:
+    <<: *node
+    container_name: web01
+    hostname: web01
+    ports: ["2221:22", "8081:80"]
+  web02:
+    <<: *node
+    container_name: web02
+    hostname: web02
+    ports: ["2222:22", "8082:80"]
+  web03:
+    <<: *node
+    container_name: web03
+    hostname: web03
+    ports: ["2223:22", "8083:80"]
+  web04:
+    <<: *node
+    container_name: web04
+    hostname: web04
+    ports: ["2224:22", "8084:80"]

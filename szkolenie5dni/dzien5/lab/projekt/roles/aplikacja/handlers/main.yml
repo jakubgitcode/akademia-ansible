@@ -1,0 +1,12 @@
+---
+# Handler wykonuje się raz, na końcu sekcji, tylko na hostach, na których któreś zadanie z notify zgłosiło zmianę.
+- name: Restartuj Apache
+  ansible.builtin.service:
+    name: apache2
+    state: restarted
+  notify: Czekaj na aplikację
+
+- name: Czekaj na aplikację
+  ansible.builtin.wait_for:
+    port: "{{ aplikacja_port }}"
+    timeout: 30

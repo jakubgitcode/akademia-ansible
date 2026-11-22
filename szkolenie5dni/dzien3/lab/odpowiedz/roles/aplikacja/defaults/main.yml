@@ -1,0 +1,14 @@
+---
+# Parametry roli aplikacja: wartości domyślne. Nadpisujesz je w group_vars, host_vars albo w playbooku.
+
+aplikacja_katalog: /var/www/naszaaplikacja
+aplikacja_log_dir: /var/log/naszaaplikacja
+aplikacja_port: 80
+aplikacja_nazwa: Nasza aplikacja
+aplikacja_wersja: "1.0"
+
+# Baza danych (L13). Pusty host = aplikacja działa bez bazy (sekcja [baza] nie trafia do config.cfg).
+aplikacja_baza_host: ""
+aplikacja_baza_nazwa: ""
+aplikacja_baza_uzytkownik: ""
+aplikacja_baza_haslo: ""

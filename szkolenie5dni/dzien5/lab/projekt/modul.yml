@@ -1,0 +1,21 @@
+---
+# L22 (opcja) — użycie własnego modułu z katalogu library/. Dev (web04):
+#   ansible-playbook modul.yml
+#   ansible-doc -M library naszaaplikacja_info
+
+- name: Własny moduł
+  hosts: appservers
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Odczytaj konfigurację aplikacji
+      naszaaplikacja_info:
+        katalog: "{{ aplikacja_katalog | default('/var/www/naszaaplikacja') }}"
+
+    - name: Pokaż wersję i bazę (hasło zamaskowane przez moduł)
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}: wersja {{ ansible_facts.naszaaplikacja.config.wersja }},
+          baza {{ ansible_facts.naszaaplikacja.baza.host | default('brak') }},
+          hasło {{ ansible_facts.naszaaplikacja.baza.haslo | default('brak') }}

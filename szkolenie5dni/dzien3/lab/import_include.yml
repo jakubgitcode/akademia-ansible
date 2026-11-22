@@ -1,0 +1,20 @@
+---
+# L11, krok 8 — import_role kontra include_role. Tego playbooka nie uruchamiasz, tylko porównujesz:
+#   ansible-playbook import_include.yml --list-tasks
+#   ansible-playbook import_include.yml --list-tags
+
+- name: Rola przez import_role — wczytana, zanim playbook ruszy
+  hosts: appservers
+  become: true
+  tasks:
+    - name: Importuj rolę aplikacja
+      ansible.builtin.import_role:
+        name: aplikacja
+
+- name: Rola przez include_role — wczytana dopiero w trakcie wykonania
+  hosts: appservers
+  become: true
+  tasks:
+    - name: Dołącz rolę aplikacja
+      ansible.builtin.include_role:
+        name: aplikacja

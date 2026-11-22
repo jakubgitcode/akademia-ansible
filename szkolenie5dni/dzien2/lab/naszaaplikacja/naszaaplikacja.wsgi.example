@@ -1,0 +1,7 @@
+# Punkt wejścia WSGI dla Apache (mod_wsgi).
+# Biblioteki z virtualenv wskazuje python-home w konfiguracji VirtualHost.
+import sys
+
+sys.path.insert(0, "/var/www/szkolenie.pl/aplikacja")
+
+from aplikacja import app as application  # noqa: E402

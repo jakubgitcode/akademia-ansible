@@ -1,0 +1,6 @@
+---
+# Środowisko deweloperskie — tylko różnice względem all.yml
+srodowisko: dev
+app_debug: true
+app_log_level: debug
+# app_replicas: 1  ← nie powtarzamy, ta wartość jest już w all.yml

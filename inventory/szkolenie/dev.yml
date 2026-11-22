@@ -1,0 +1,8 @@
+---
+# Dzień 4, środowisko dev: web04 (cała aplikacja na jednym hoście) na maszynie w chmurze.
+#   ansible-playbook -i inventories/dev -i ~/akademia-ansible/inventory/szkolenie/dev.yml site.yml
+all:
+  children:
+    chmura:
+      hosts:
+        web04:

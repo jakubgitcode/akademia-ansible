@@ -1,0 +1,8 @@
+---
+# Stałe roli — szczegóły implementacji, nie parametry. Zmienne z vars/ wygrywają z group_vars,
+# więc to, co ma się dać nadpisać, trzymaj w defaults/.
+aplikacja_pakiety:
+  - apache2
+  - libapache2-mod-wsgi-py3
+  - python3-venv
+  - python3-packaging     # potrzebny modułowi ansible.builtin.pip na hoście

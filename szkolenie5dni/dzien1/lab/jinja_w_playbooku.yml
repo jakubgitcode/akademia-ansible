@@ -1,0 +1,18 @@
+---
+# Przykład ze slajdu 41 (blok 3): Jinja2 w playbooku — {{ zmienna }} w argumentach modułów.
+# Lokalnie, bez hostów:  ansible-playbook jinja_w_playbooku.yml
+- name: Jinja2 w playbooku
+  hosts: localhost
+  vars:
+    aplikacja: sklep
+    wersja: "1.4"
+  tasks:
+    - name: Wypisz wartości zmiennych
+      ansible.builtin.debug:
+        msg: "Wdrażam {{ aplikacja }} w wersji {{ wersja }}"
+
+    - name: Katalog z nazwą ze zmiennych
+      ansible.builtin.file:
+        path: "/tmp/{{ aplikacja }}-{{ wersja }}"
+        state: directory
+        mode: "0755"

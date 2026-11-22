@@ -1,0 +1,24 @@
+---
+# L18, część C — restart klastra węzeł po węźle tylko w kroku restartu (wzorzec prowadzącego).
+#   ansible-playbook -i inventories/prod restart_klastra.yml
+#   ansible-playbook -i inventories/prod restart_klastra.yml -e awaria_na=web02
+#
+# Reszta playa działa równolegle na wszystkich hostach (bez serial). Gdy zmiana wymaga restartu,
+# handler z run_once uruchamia pętlę po węzłach: każdy węzeł zatrzymany, sprawdzony i przywrócony,
+# zanim ruszy następny (delegate_to). Błąd na którymkolwiek węźle przerywa pętlę i cały play.
+
+- name: Zmiana konfiguracji klastra aplikacji
+  hosts: appservers
+  become: true
+
+  tasks:
+    # W praktyce: template albo copy z konfiguracją, która wymaga restartu. Tu zmiana symulowana.
+    - name: Zmiana, po której węzły wymagają restartu
+      ansible.builtin.command: /bin/true
+      changed_when: true
+      notify: Restart klastra po kolei
+
+  handlers:
+    - name: Restart klastra po kolei
+      ansible.builtin.include_tasks: zadania/restart_klastra_petla.yml
+      run_once: true

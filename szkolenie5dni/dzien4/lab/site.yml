@@ -1,0 +1,54 @@
+---
+# site.yml — cały projekt jednym poleceniem (stan po dniu 3):
+#   ansible-playbook site.yml
+# Kolejność warstw: baza → aplikacja → load balancer. Warstwa niżej musi działać, zanim postawimy wyższą.
+
+# L13: baza danych z roli z Ansible Galaxy
+- name: Warstwa bazy danych
+  hosts: databases
+  become: true
+  roles:
+    - geerlingguy.mysql
+
+# L11: nasza rola; L13: spięcie z bazą przez group_vars/appservers.yml
+- name: Warstwa aplikacji
+  hosts: appservers
+  become: true
+
+  pre_tasks:
+    # Adres bazy pochodzi z faktów hosta bazy. Przy --limit appservers play bazy się nie wykonuje,
+    # więc fakty zbieramy tu jawnie (L13, krok 9).
+    - name: Zbierz fakty hostów bazy danych
+      ansible.builtin.setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['databases'] }}"
+      run_once: true    # noqa: run-once[task] — raz na play, nie raz na każdy serwer aplikacji
+      tags: [always]
+
+    - name: Pokaż, co wdrażamy
+      ansible.builtin.debug:
+        msg: "{{ aplikacja_nazwa }} {{ aplikacja_wersja }} → {{ inventory_hostname }} ({{ srodowisko | default('nieznane') }})"
+      tags: [always]
+
+  roles:
+    - aplikacja
+
+  post_tasks:
+    - name: Sprawdź, czy aplikacja odpowiada
+      ansible.builtin.uri:
+        url: "http://localhost:{{ aplikacja_port }}/health"
+      tags: [always]
+
+# L14: load balancer przed serwerami aplikacji
+- name: Warstwa load balancera
+  hosts: loadbalancers
+  become: true
+  roles:
+    - loadbalancer
+
+  post_tasks:
+    - name: Sprawdź, czy load balancer przekazuje ruch
+      ansible.builtin.uri:
+        url: "http://localhost:{{ loadbalancer_port }}/health"
+      tags: [always]

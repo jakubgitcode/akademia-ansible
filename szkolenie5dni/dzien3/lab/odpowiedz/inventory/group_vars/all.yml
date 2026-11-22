@@ -1,0 +1,12 @@
+---
+# Wspólne zmienne projektu.
+
+# Cały projekt dnia 3 to jedno środowisko. Podział na dev i prod z osobnymi inventory — dzień 4.
+srodowisko: prod
+
+# Baza danych aplikacji: te same wartości potrzebuje warstwa bazy (tworzy bazę i użytkownika)
+# i warstwa aplikacji (łączy się z bazą) — dlatego są w all.yml.
+db_nazwa: naszaaplikacja
+db_uzytkownik: naszaaplikacja
+# Hasło jawnym tekstem TYLKO na potrzeby ćwiczenia — w dniu 4 przeniesiemy je do ansible-vault.
+db_haslo: "Szkolenie-Baza-2026"

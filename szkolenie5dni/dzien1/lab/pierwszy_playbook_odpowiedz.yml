@@ -1,0 +1,63 @@
+---
+# L4 — Pierwszy playbook (ROZWIAZANIE)
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml pierwszy_playbook_odpowiedz.yml
+
+- name: Pierwszy playbook — poznajemy hosty
+  hosts: all
+  become: false
+  gather_facts: true
+
+  vars:
+    katalog_lab: /tmp/akademia
+    powitanie: "Witaj na szkoleniu Ansible!"
+
+  tasks:
+
+    - name: Sprawdz polaczenie
+      ansible.builtin.ping:
+
+    - name: Przedstaw hosta
+      ansible.builtin.debug:
+        msg: >
+          Jestem {{ inventory_hostname }},
+          system: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }},
+          RAM: {{ ansible_facts.memtotal_mb }} MB
+
+    - name: Wyswietl powitanie
+      ansible.builtin.debug:
+        msg: "{{ powitanie }}"
+
+    - name: Stworz katalog laboratoryjny
+      ansible.builtin.file:
+        path: "{{ katalog_lab }}"
+        state: directory
+        mode: '0755'
+
+    - name: Zapisz wizytowke hosta do pliku
+      ansible.builtin.copy:
+        dest: "{{ katalog_lab }}/wizytowka.txt"
+        content: |
+          Host:   {{ inventory_hostname }}
+          System: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+          IP:     {{ ansible_facts.default_ipv4.address }}
+
+    - name: Sprawdz uptime
+      ansible.builtin.command: uptime
+      register: wynik_uptime
+      changed_when: false      # samo odczytanie nie zmienia stanu hosta
+
+    - name: Pokaz uptime
+      ansible.builtin.debug:
+        msg: "{{ wynik_uptime.stdout }}"
+
+    # Krok 5 (po obiedzie): pakiety; uprawnienia administratora tylko dla tego zadania
+    - name: Zainstaluj narzedzia
+      ansible.builtin.apt:
+        name:
+          - tree
+          - jq
+        state: present
+        update_cache: true          # odswiez liste pakietow...
+        cache_valid_time: 3600      # ...ale tylko gdy jest starsza niz godzina
+      become: true

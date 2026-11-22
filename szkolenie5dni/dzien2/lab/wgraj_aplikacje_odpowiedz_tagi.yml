@@ -1,0 +1,158 @@
+---
+# L10 — tagi (ROZWIĄZANIE; handlery, pre_tasks i post_tasks jak w L9)
+# Uruchomienie:
+#   ansible-playbook wgraj_aplikacje_odpowiedz_tagi.yml --list-tags
+#   ansible-playbook wgraj_aplikacje_odpowiedz_tagi.yml --tags konfiguracja
+#   ansible-playbook wgraj_aplikacje_odpowiedz_tagi.yml --skip-tags pakiety
+#   ansible-playbook wgraj_aplikacje_odpowiedz_tagi.yml --tags diagnostyka
+
+- name: Wdrożenie naszaaplikacja
+  hosts: webservers
+  become: true
+
+  vars:
+    aplikacja_katalog: /var/www/naszaaplikacja
+    aplikacja_log_dir: /var/log/naszaaplikacja
+    aplikacja_port: 80
+    aplikacja_nazwa: Nasza aplikacja
+    aplikacja_wersja: "1.0"
+
+  pre_tasks:
+    - name: Pokaż, co wdrażamy
+      ansible.builtin.debug:
+        msg: "{{ aplikacja_nazwa }} {{ aplikacja_wersja }} → {{ inventory_hostname }} ({{ srodowisko | default('nieznane') }})"
+      tags: [always]
+
+  tasks:
+
+    - name: Zainstaluj Apache, mod_wsgi, venv i packaging
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - libapache2-mod-wsgi-py3
+          - python3-venv
+          - python3-packaging     # potrzebny modułowi ansible.builtin.pip na hoście
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      tags: [pakiety]
+
+    - name: Utwórz katalog aplikacji
+      ansible.builtin.file:
+        path: "{{ aplikacja_katalog }}"
+        state: directory
+        mode: '0755'
+      tags: [kod]
+
+    - name: Utwórz katalog na logi
+      ansible.builtin.file:
+        path: "{{ aplikacja_log_dir }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      tags: [kod]
+
+    - name: Wgraj kod aplikacji
+      ansible.builtin.copy:
+        src: naszaaplikacja/
+        dest: "{{ aplikacja_katalog }}/"
+        mode: '0644'
+      notify: Restartuj Apache
+      tags: [kod]
+
+    - name: Utwórz virtualenv i zainstaluj zależności
+      ansible.builtin.pip:
+        requirements: "{{ aplikacja_katalog }}/requirements.txt"
+        virtualenv: "{{ aplikacja_katalog }}/venv"
+        virtualenv_command: python3 -m venv
+      notify: Restartuj Apache
+      tags: [kod]
+
+    - name: Wgraj konfigurację aplikacji
+      ansible.builtin.template:
+        src: templates/odpowiedz/config.cfg.j2
+        dest: "{{ aplikacja_katalog }}/config.cfg"
+        mode: '0644'
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    - name: Wgraj punkt wejścia WSGI
+      ansible.builtin.template:
+        src: templates/odpowiedz/naszaaplikacja.wsgi.j2
+        dest: "{{ aplikacja_katalog }}/naszaaplikacja.wsgi"
+        mode: '0644'
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    - name: Wgraj VirtualHost aplikacji
+      ansible.builtin.template:
+        src: templates/odpowiedz/naszaaplikacja.conf.j2
+        dest: /etc/apache2/sites-available/naszaaplikacja.conf
+        mode: '0644'
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    - name: Ustaw port nasłuchu Apache
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen '
+        line: "Listen {{ aplikacja_port }}"
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    - name: Włącz VirtualHost aplikacji
+      ansible.builtin.command: a2ensite naszaaplikacja
+      args:
+        creates: /etc/apache2/sites-enabled/naszaaplikacja.conf
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    - name: Wyłącz domyślną stronę Apache
+      ansible.builtin.command: a2dissite 000-default
+      args:
+        removes: /etc/apache2/sites-enabled/000-default.conf
+      notify: Restartuj Apache
+      tags: [konfiguracja]
+
+    # Zamiast restartu przy każdym uruchomieniu: usługa ma działać i startować z systemem (bez zmiany = ok)
+    - name: Apache działa i startuje z systemem
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true
+      tags: [konfiguracja]
+
+    # never: wykonuje się TYLKO wtedy, gdy podasz jego tag (--tags diagnostyka)
+    - name: Odczytaj konfigurację aplikacji
+      ansible.builtin.command: "cat {{ aplikacja_katalog }}/config.cfg"
+      register: konfiguracja_aplikacji
+      changed_when: false
+      tags: [never, diagnostyka]
+
+    - name: Pokaż konfigurację aplikacji
+      ansible.builtin.debug:
+        var: konfiguracja_aplikacji.stdout_lines
+      tags: [never, diagnostyka]
+
+  post_tasks:
+    # always: sprawdzenie wykonuje się także przy --tags konfiguracja
+    - name: Sprawdź, czy aplikacja odpowiada
+      ansible.builtin.uri:
+        url: "http://localhost:{{ aplikacja_port }}/health"
+      tags: [always]
+
+  handlers:
+    # Handler wykonuje się raz, na końcu sekcji (tu: po tasks), tylko na hostach, na których
+    # któreś zadanie z notify zgłosiło zmianę — niezależnie od tego, ile zadań go powiadomiło.
+    - name: Restartuj Apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+      notify: Czekaj na aplikację
+
+    # Handler może powiadomić kolejny handler
+    - name: Czekaj na aplikację
+      ansible.builtin.wait_for:
+        port: "{{ aplikacja_port }}"
+        timeout: 30

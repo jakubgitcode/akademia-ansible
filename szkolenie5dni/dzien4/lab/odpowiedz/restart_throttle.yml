@@ -1,0 +1,36 @@
+---
+# L18, część C — czy throttle wystarczy do restartu po jednym węźle? Uruchom i obserwuj pętlę z curl.
+#   ansible-playbook -i inventories/prod restart_throttle.yml
+#
+# throttle: 1 ogranicza JEDNO zadanie do jednego hosta naraz. W bloku dotyczy każdego zadania osobno:
+# najpierw oba hosty po kolei się zatrzymują, potem po kolei czekają, potem po kolei startują.
+
+- name: Restart z throttle
+  hosts: appservers
+  become: true
+
+  tasks:
+    - name: Restart węzła
+      throttle: 1
+      block:
+        - name: Zatrzymaj Apache
+          ansible.builtin.service:
+            name: apache2
+            state: stopped
+
+        - name: Aktualizacja trwa 5 sekund
+          ansible.builtin.wait_for:
+            timeout: 5
+
+        - name: Uruchom Apache
+          ansible.builtin.service:
+            name: apache2
+            state: started
+
+        - name: Czekaj, aż aplikacja odpowie
+          ansible.builtin.uri:
+            url: "http://localhost:{{ aplikacja_port | default(80) }}/health"
+          register: zdrowie
+          until: zdrowie.status == 200
+          retries: 15
+          delay: 1

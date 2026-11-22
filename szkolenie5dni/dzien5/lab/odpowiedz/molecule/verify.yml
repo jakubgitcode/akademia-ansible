@@ -1,0 +1,31 @@
+---
+# L20, krok 7 — sprawdzenie roli po wdrożeniu w kontenerze (ROZWIĄZANIE).
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Aplikacja odpowiada na /health
+      ansible.builtin.uri:
+        url: http://localhost/health
+        return_content: true
+      register: aplikacja_zdrowie
+      failed_when: "'OK' not in aplikacja_zdrowie.content"
+
+    - name: Strona główna pokazuje nazwę aplikacji
+      ansible.builtin.uri:
+        url: http://localhost/
+        return_content: true
+      register: aplikacja_strona
+      failed_when: "'Nasza aplikacja' not in aplikacja_strona.content"
+
+    - name: Odczytaj uprawnienia config.cfg
+      ansible.builtin.stat:
+        path: /var/www/naszaaplikacja/config.cfg
+      register: aplikacja_plik
+
+    - name: Konfiguracja z hasłem nie jest dostępna dla wszystkich
+      ansible.builtin.assert:
+        that:
+          - aplikacja_plik.stat.mode == '0640'
+          - aplikacja_plik.stat.gr_name == 'www-data'
+        fail_msg: "config.cfg ma uprawnienia {{ aplikacja_plik.stat.mode }}, grupa {{ aplikacja_plik.stat.gr_name }}"

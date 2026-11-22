@@ -1,0 +1,15 @@
+---
+# L20, krok 7 — co sprawdzić po wdrożeniu roli w kontenerze. Uzupełnij TODO.
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Aplikacja odpowiada na /health
+      ansible.builtin.uri:
+        url: http://localhost/health
+        return_content: true
+      register: aplikacja_zdrowie
+      failed_when: "'OK' not in aplikacja_zdrowie.content"
+
+    # TODO 1: strona główna (http://localhost/) zawiera tekst „Nasza aplikacja” (uri + failed_when, jak wyżej)
+    # TODO 2: config.cfg ma uprawnienia 0640 i grupę www-data (ansible.builtin.stat + ansible.builtin.assert)

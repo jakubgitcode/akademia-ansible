@@ -1,0 +1,10 @@
+---
+# Zmienne WSPÓLNE dla wszystkich środowisk (katalog group_vars obok site.yml) — warstwa aplikacji.
+# Uwaga: group_vars obok playbooka wygrywa z group_vars w inventory. Trzymaj tu tylko to, czego
+# środowiska nie nadpisują.
+
+# Spięcie z bazą: adres pierwszego hosta z grupy databases odczytany z jego faktów.
+aplikacja_baza_host: "{{ hostvars[groups['databases'][0]].ansible_facts.default_ipv4.address }}"
+aplikacja_baza_nazwa: "{{ db_nazwa }}"
+aplikacja_baza_uzytkownik: "{{ db_uzytkownik }}"
+aplikacja_baza_haslo: "{{ db_haslo }}"

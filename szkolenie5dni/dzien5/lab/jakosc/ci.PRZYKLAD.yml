@@ -1,0 +1,22 @@
+# L20, krok 9 — PRZYKŁAD do przeczytania: test projektu w GitHub Actions przy każdej zmianie.
+# W repozytorium projektu: .github/workflows/test.yml. W GitLab CI ten sam układ w .gitlab-ci.yml.
+name: Test projektu Ansible
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: {python-version: "3.12"}
+      - run: pip install -r jakosc/requirements.txt
+      - run: ansible-galaxy install -r requirements.yml
+      - run: ansible-lint
+  molecule:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: {python-version: "3.12"}
+      - run: pip install -r jakosc/requirements.txt
+      - run: cd roles/aplikacja && molecule test

@@ -1,0 +1,7 @@
+*********************************************************
+  {{ ansible_facts.hostname }} — serwer zarządzany przez Ansible
+  System : {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+  IP     : {{ ansible_facts.default_ipv4.address }}
+  RAM    : {{ ansible_facts.memtotal_mb }} MB · CPU: {{ ansible_facts.processor_count }}
+  Zmiany ręczne zostaną nadpisane przez playbook!
+*********************************************************

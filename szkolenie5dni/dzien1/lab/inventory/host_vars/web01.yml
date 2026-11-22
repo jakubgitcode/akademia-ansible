@@ -1,0 +1,4 @@
+---
+# Zmienne tylko dla hosta web01. Nazwa pliku = nazwa hosta z inventory.
+# L5, krok 5: odkomentuj poniższą linię.
+# ciekawa_zmienna: "z host_vars/web01.yml"

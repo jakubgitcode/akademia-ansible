@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Punkt wejścia WSGI dla Apache (mod_wsgi).
+# Biblioteki z virtualenv wskazuje python-home w konfiguracji VirtualHost.
+import sys
+
+sys.path.insert(0, "{{ aplikacja_katalog }}")
+
+from aplikacja import app as application  # noqa: E402

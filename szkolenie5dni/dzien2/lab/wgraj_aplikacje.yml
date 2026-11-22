@@ -1,0 +1,113 @@
+---
+# L8 — wdrożenie aplikacji naszaaplikacja jednym playbookiem (dalej rozbudowujesz go w L9 i L10)
+# Uruchomienie:
+#   ansible-playbook wgraj_aplikacje.yml --syntax-check
+#   ansible-playbook wgraj_aplikacje.yml
+#
+# Zadania idą w kolejności kroków z instrukcji dewelopera: naszaaplikacja/README.md.
+# Uzupełniaj TODO po kolei i uruchamiaj playbook po każdym kroku. Zadania, do których jeszcze nie doszedłeś,
+# tylko wypisują „TODO — krok N” (moduł debug), więc playbook działa od początku.
+
+- name: Wdrożenie naszaaplikacja
+  hosts: webservers
+  become: true
+
+  # Parametry wdrożenia — szablony konfiguracji korzystają z tych zmiennych
+  vars:
+    aplikacja_katalog: /var/www/naszaaplikacja
+    aplikacja_log_dir: /var/log/naszaaplikacja
+    aplikacja_port: 80
+    aplikacja_nazwa: Nasza aplikacja
+    aplikacja_wersja: "1.0"
+
+  tasks:
+
+    # ---------- część 1 (blok 4) ----------
+
+    - name: Zainstaluj Apache, mod_wsgi, venv i packaging
+      # TODO (krok 2): zamień poniższy debug na moduł ansible.builtin.apt
+      #       name (lista): apache2, libapache2-mod-wsgi-py3, python3-venv, python3-packaging
+      #       (python3-packaging nie jest potrzebny aplikacji, tylko modułowi pip w kroku 5)
+      #       state: present, update_cache: true, cache_valid_time: 3600
+      ansible.builtin.debug:
+        msg: "TODO — krok 2"
+
+    - name: Utwórz katalog aplikacji
+      # TODO (krok 3): zamień poniższy debug na moduł ansible.builtin.file
+      #       path: "{{ aplikacja_katalog }}", state: directory, mode: '0755'
+      ansible.builtin.debug:
+        msg: "TODO — krok 3"
+
+    - name: Utwórz katalog na logi
+      # TODO (krok 3): zamień poniższy debug na moduł ansible.builtin.file
+      #       path: "{{ aplikacja_log_dir }}", state: directory, mode: '0755'
+      #       owner: www-data, group: www-data   (Apache zapisuje tu logi jako www-data)
+      ansible.builtin.debug:
+        msg: "TODO — krok 3"
+
+    - name: Wgraj kod aplikacji
+      # TODO (krok 4): zamień poniższy debug na moduł ansible.builtin.copy
+      #       src: naszaaplikacja/              ← ukośnik na końcu: kopiuje ZAWARTOŚĆ katalogu
+      #       dest: "{{ aplikacja_katalog }}/"
+      #       mode: '0644'
+      ansible.builtin.debug:
+        msg: "TODO — krok 4"
+
+    - name: Utwórz virtualenv i zainstaluj zależności
+      # TODO (krok 5): zamień poniższy debug na moduł ansible.builtin.pip
+      #       requirements: "{{ aplikacja_katalog }}/requirements.txt"
+      #       virtualenv: "{{ aplikacja_katalog }}/venv"
+      #       virtualenv_command: python3 -m venv
+      ansible.builtin.debug:
+        msg: "TODO — krok 5"
+
+    # ---------- część 2 (blok 5) ----------
+
+    - name: Wgraj konfigurację aplikacji
+      # TODO (krok 7): zamień poniższy debug na moduł ansible.builtin.template
+      #       src: templates/config.cfg.j2        (zrobisz go z naszaaplikacja/config.cfg.example)
+      #       dest: "{{ aplikacja_katalog }}/config.cfg", mode: '0644'
+      ansible.builtin.debug:
+        msg: "TODO — krok 7"
+
+    - name: Wgraj punkt wejścia WSGI
+      # TODO (krok 8): zamień poniższy debug na moduł ansible.builtin.template
+      #       src: templates/naszaaplikacja.wsgi.j2
+      #       dest: "{{ aplikacja_katalog }}/naszaaplikacja.wsgi", mode: '0644'
+      ansible.builtin.debug:
+        msg: "TODO — krok 8"
+
+    - name: Wgraj VirtualHost aplikacji
+      # TODO (krok 8): zamień poniższy debug na moduł ansible.builtin.template
+      #       src: templates/naszaaplikacja.conf.j2
+      #       dest: /etc/apache2/sites-available/naszaaplikacja.conf, mode: '0644'
+      ansible.builtin.debug:
+        msg: "TODO — krok 8"
+
+    - name: Ustaw port nasłuchu Apache
+      # TODO (krok 9): zamień poniższy debug na moduł ansible.builtin.lineinfile
+      #       path: /etc/apache2/ports.conf
+      #       regexp: '^Listen '
+      #       line: "Listen {{ aplikacja_port }}"
+      ansible.builtin.debug:
+        msg: "TODO — krok 9"
+
+    - name: Włącz VirtualHost aplikacji
+      # TODO (krok 10): zamień poniższy debug na moduł ansible.builtin.command
+      #       (a2ensite nie ma modułu w ansible.builtin)
+      #       polecenie: a2ensite naszaaplikacja
+      #       args: creates: /etc/apache2/sites-enabled/naszaaplikacja.conf   (wtedy drugi raz się nie wykona)
+      ansible.builtin.debug:
+        msg: "TODO — krok 10"
+
+    # GOTOWE — to samo w drugą stronę: removes pomija zadanie, gdy pliku już nie ma
+    - name: Wyłącz domyślną stronę Apache
+      ansible.builtin.command: a2dissite 000-default
+      args:
+        removes: /etc/apache2/sites-enabled/000-default.conf
+
+    - name: Zrestartuj Apache
+      # TODO (krok 10): zamień poniższy debug na moduł ansible.builtin.service
+      #       name: apache2, state: restarted, enabled: true
+      ansible.builtin.debug:
+        msg: "TODO — krok 10"

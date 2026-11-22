@@ -1,0 +1,22 @@
+---
+# Zmienne warstwy bazy danych (hosty z grupy databases): parametry roli geerlingguy.mysql (ROZWIĄZANIE).
+
+# Hasło roota MySQL jawnym tekstem TYLKO na potrzeby ćwiczenia — w dniu 4: ansible-vault.
+mysql_root_password: "Szkolenie-Root-2026"
+
+# Sterownik MySQL dla modułów community.mysql. Domyślny w roli python3-mysqldb działa,
+# ale kolekcja ostrzega, że przestaje go wspierać.
+mysql_python_package_debian: python3-pymysql
+
+# Domyślnie w roli: 0.0.0.0 — MySQL przyjmuje połączenia z sieci, nie tylko z localhost.
+# Wpisujemy jawnie, bo bez tego serwery aplikacji na innych hostach się nie połączą.
+mysql_bind_address: "0.0.0.0"
+
+mysql_databases:
+  - name: "{{ db_nazwa }}"
+
+mysql_users:
+  - name: "{{ db_uzytkownik }}"
+    password: "{{ db_haslo }}"
+    host: "%"                        # połączenia z dowolnego hosta (serwery aplikacji)
+    priv: "{{ db_nazwa }}.*:ALL"

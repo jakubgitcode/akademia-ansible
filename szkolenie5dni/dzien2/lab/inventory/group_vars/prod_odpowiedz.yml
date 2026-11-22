@@ -1,0 +1,6 @@
+---
+# ROZWIĄZANIE — wzór dla prod.yml.
+# Ansible nie wczytuje tego pliku (nie ma grupy prod_odpowiedz); skopiuj treść do prod.yml.
+srodowisko: prod
+app_log_level: warning
+app_replicas: 3

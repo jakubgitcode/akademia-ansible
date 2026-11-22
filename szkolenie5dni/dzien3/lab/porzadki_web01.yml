@@ -1,0 +1,46 @@
+---
+# L13, krok 1 — web01 przestaje być serwerem aplikacji (w dniu 3 to baza i load balancer).
+# Usuwa aplikację z dnia 2 i Apache ze wszystkich hostów SPOZA grupy appservers.
+#   ansible-playbook porzadki_web01.yml
+#
+# Wzorzec hostów all:!appservers = „wszystkie oprócz grupy appservers”. Na hoście bez aplikacji (np. web03)
+# nic się nie zmienia.
+
+- name: Usunięcie aplikacji z hostów spoza warstwy aplikacji
+  hosts: all:!appservers
+  become: true
+
+  vars:
+    aplikacja_katalog: /var/www/naszaaplikacja
+    aplikacja_log_dir: /var/log/naszaaplikacja
+
+  tasks:
+
+    - name: Sprawdź, jakie usługi są na hoście
+      ansible.builtin.service_facts:
+
+    # W kontenerach lab-env apt nie zatrzymuje usługi przy usuwaniu pakietu — robimy to jawnie
+    - name: Zatrzymaj Apache
+      ansible.builtin.service:
+        name: apache2
+        state: stopped
+        enabled: false
+      when: "'apache2.service' in ansible_facts.services"
+
+    - name: Usuń Apache i mod_wsgi razem z konfiguracją
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - libapache2-mod-wsgi-py3
+        state: absent
+        purge: true
+        autoremove: true
+
+    - name: Usuń pozostałości konfiguracji i aplikacji
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apache2
+        - "{{ aplikacja_katalog }}"
+        - "{{ aplikacja_log_dir }}"

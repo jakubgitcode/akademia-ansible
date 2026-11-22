@@ -1,0 +1,55 @@
+---
+# L21, część A — lookupy, delegacja, run_once, async. Dev (web04):
+#   ansible-playbook ciekawostki.yml
+#   time ansible-playbook ciekawostki.yml                 # porównaj czas z wersją bez async (krok 3)
+
+- name: Lookupy, delegacja i zadania w tle
+  hosts: appservers
+  gather_facts: false
+
+  tasks:
+
+    # Lookup wykonuje się na control node (Twojej maszynie albo w AWX), nie na hoście docelowym
+    - name: Gdzie działa lookup, a gdzie moduł
+      ansible.builtin.debug:
+        msg: "lookup pipe hostname: {{ lookup('ansible.builtin.pipe', 'hostname') }}; host docelowy: {{ inventory_hostname }}"
+
+    - name: Plik z repozytorium (lookup file)
+      ansible.builtin.debug:
+        msg: "Zależności aplikacji: {{ zaleznosci.splitlines() | reject('match', '^#') | list }}"
+      vars:
+        zaleznosci: "{{ lookup('ansible.builtin.file', 'roles/aplikacja/files/naszaaplikacja/requirements.txt') }}"
+
+    - name: Hosty grupy z inventory (query zwraca listę)
+      ansible.builtin.debug:
+        msg: "Serwery aplikacji: {{ query('ansible.builtin.inventory_hostnames', 'appservers') }}"
+
+    # Delegacja: zadanie dla tego hosta, ale wykonane gdzie indziej. run_once: raz na cały play.
+    - name: Wpis w dzienniku wdrożeń na control node
+      ansible.builtin.lineinfile:
+        path: "{{ playbook_dir }}/wdrozenia.log"
+        line: "{{ now(utc=true).isoformat() }} ciekawostki.yml: {{ ansible_play_hosts | join(', ') }}"
+        create: true
+        mode: '0644'
+      delegate_to: localhost
+      run_once: true    # noqa: run-once[task] — jeden wpis na uruchomienie
+
+    # async + poll: 0 — uruchom i nie czekaj; wynik odbierz później (async_status)
+    - name: Długie zadanie w tle (15 sekund)
+      ansible.builtin.command: sleep 15
+      async: 60
+      poll: 0
+      register: dlugie
+      changed_when: false
+
+    - name: W tym czasie drugie długie zadanie (15 sekund)
+      ansible.builtin.command: sleep 15
+      changed_when: false
+
+    - name: Odbierz wynik zadania w tle
+      ansible.builtin.async_status:
+        jid: "{{ dlugie.ansible_job_id }}"
+      register: wynik
+      until: wynik.finished
+      retries: 30
+      delay: 1

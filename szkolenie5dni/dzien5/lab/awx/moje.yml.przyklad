@@ -1,0 +1,9 @@
+---
+# Skopiuj do awx/moje.yml i uzupełnij (L19, część C). awx/moje.yml nie trafia do gita (.gitignore).
+awx_adres: "https://awx.example.invalid"     # adres AWX od prowadzącego
+awx_token: ""                                 # AWX: Users → Twój użytkownik → Tokens → Add (zakres Write)
+awx_organizacja: "kursant01"                  # Twoja organizacja w AWX (od prowadzącego)
+uczestnik: "kursant01"                        # przedrostek nazw obiektów
+lab_adres: "10.42.1.10"                       # adres Twojej maszyny widziany z AWX: hostname -I | cut -d' ' -f1
+repozytorium: "https://git.example.invalid/akademia/projekt.git"   # repozytorium projektu od prowadzącego
+galaz: "main"

@@ -1,0 +1,4 @@
+---
+# Zmienne tylko hosta web01 (nazwa pliku = nazwa hosta z inventory). host_vars wygrywa z group_vars.
+http_port: 8080
+opis: "host testowy, tu sprawdzamy zmiany przed prod"

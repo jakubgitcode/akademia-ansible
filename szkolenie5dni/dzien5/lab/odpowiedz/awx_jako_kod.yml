@@ -1,0 +1,110 @@
+---
+# L19, część C — AWX jako kod (ROZWIĄZANIE). Te same obiekty, które w części A i B klikałeś w interfejsie,
+# tworzone kolekcją awx.awx — z przedrostkiem „-kod”, żeby nie nadpisać tamtych.
+#   ansible-galaxy collection install -r awx/requirements.yml -p awx/kolekcje
+#   ANSIBLE_COLLECTIONS_PATH=awx/kolekcje ansible-playbook awx/awx_jako_kod.yml
+
+- name: AWX jako kod
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - moje.yml
+
+  # Wspólne parametry wszystkich modułów awx.awx
+  module_defaults:
+    group/awx.awx.controller:
+      controller_host: "{{ awx_adres }}"
+      controller_oauthtoken: "{{ awx_token }}"
+      validate_certs: false
+
+  tasks:
+
+    - name: Poświadczenie SSH do hostów kursanta
+      awx.awx.credential:
+        name: "{{ uczestnik }}-lab-kod"
+        organization: "{{ awx_organizacja }}"
+        credential_type: Machine
+        inputs:
+          username: ubuntu
+          ssh_key_data: "{{ lookup('ansible.builtin.file', '~/.ssh/akademia_lab_key') }}"
+      no_log: true
+
+    - name: Poświadczenie vault (hasło prod)
+      awx.awx.credential:
+        name: "{{ uczestnik }}-vault-prod-kod"
+        organization: "{{ awx_organizacja }}"
+        credential_type: Vault
+        inputs:
+          vault_id: prod
+          vault_password: "{{ lookup('ansible.builtin.file', '~/.vault_prod') }}"
+      no_log: true
+
+    - name: Projekt z gita
+      awx.awx.project:
+        name: "{{ uczestnik }}-projekt-kod"
+        organization: "{{ awx_organizacja }}"
+        scm_type: git
+        scm_url: "{{ repozytorium }}"
+        scm_branch: "{{ galaz }}"
+        scm_update_on_launch: true
+        wait: true
+
+    - name: Inventory z adresem maszyny kursanta
+      awx.awx.inventory:
+        name: "{{ uczestnik }}-prod-kod"
+        organization: "{{ awx_organizacja }}"
+        variables:
+          lab_adres: "{{ lab_adres }}"
+
+    - name: Źródło inventory — plik z projektu
+      awx.awx.inventory_source:
+        name: "{{ uczestnik }}-z-projektu"
+        inventory: "{{ uczestnik }}-prod-kod"
+        source: scm
+        source_project: "{{ uczestnik }}-projekt-kod"
+        source_path: inventories/awx/hosts.yml
+        overwrite: true
+        update_on_launch: true
+
+    - name: Synchronizacja inventory
+      awx.awx.inventory_source_update:
+        name: "{{ uczestnik }}-z-projektu"
+        inventory: "{{ uczestnik }}-prod-kod"
+        wait: true
+
+    - name: Szablon zadania z ankietą (survey)
+      awx.awx.job_template:
+        name: "{{ uczestnik }}-site-prod-kod"
+        organization: "{{ awx_organizacja }}"
+        job_type: run
+        inventory: "{{ uczestnik }}-prod-kod"
+        project: "{{ uczestnik }}-projekt-kod"
+        playbook: site.yml
+        credentials:
+          - "{{ uczestnik }}-lab-kod"
+          - "{{ uczestnik }}-vault-prod-kod"
+        survey_enabled: true
+        survey_spec:
+          name: Wdrożenie
+          description: Parametry wdrożenia
+          spec:
+            - question_name: Wersja aplikacji
+              variable: aplikacja_wersja
+              type: text
+              default: "1.0"
+              required: true
+
+    - name: Uruchom szablon i poczekaj na wynik
+      awx.awx.job_launch:
+        job_template: "{{ uczestnik }}-site-prod-kod"
+        extra_vars:
+          aplikacja_wersja: "1.2"
+        wait: true
+        timeout: 900
+      register: zadanie
+
+    - name: Wynik zadania
+      ansible.builtin.debug:
+        msg: "Zadanie {{ zadanie.id }}: {{ zadanie.status }} — sprawdź curl http://localhost:8081/ (Wersja: 1.2)"

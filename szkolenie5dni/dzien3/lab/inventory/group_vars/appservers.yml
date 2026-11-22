@@ -1,0 +1,7 @@
+---
+# Zmienne warstwy aplikacji (hosty z grupy appservers): parametry roli aplikacja.
+#
+# TODO (L11, krok 7): nadpisz nazwę aplikacji z defaults roli, np.
+#   aplikacja_nazwa: "Nasza aplikacja — produkcja"
+#
+# TODO (L13, krok 7): dane połączenia z bazą (aplikacja_baza_host, aplikacja_baza_nazwa, …)

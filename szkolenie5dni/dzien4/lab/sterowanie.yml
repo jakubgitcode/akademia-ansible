@@ -1,0 +1,110 @@
+---
+# L18, część A — sterowanie wykonaniem. Dev (web04). Uzupełnij miejsca oznaczone # TODO.
+#   ansible-playbook sterowanie.yml
+#   ansible-playbook sterowanie.yml -e zepsuj=true      # zmiana nieudana → wycofanie (rescue, TODO 5)
+
+- name: Sprawdzenie aplikacji i zmiana konfiguracji z wycofaniem
+  hosts: appservers
+  become: true
+
+  vars:
+    # Zmienne roli aplikacja (defaults) nie są widoczne w playu bez tej roli — stąd default()
+    adres_aplikacji: "http://localhost:{{ aplikacja_port | default(80) }}"
+    plik_konfiguracji: "{{ aplikacja_katalog | default('/var/www/naszaaplikacja') }}/config.cfg"
+    nowa_wersja: "1.1-test"
+
+  tasks:
+
+    # 1. changed_when: odczyt niczego nie zmienia, więc nie zgłaszamy zmiany
+    - name: Odczytaj wersję aplikacji z konfiguracji
+      ansible.builtin.command: "grep ^wersja {{ plik_konfiguracji }}"
+      register: wersja
+      # TODO 1: odczyt niczego nie zmienia — dopisz changed_when
+
+    # 2. until: ponawiaj, aż warunek będzie spełniony (albo skończą się próby)
+    - name: Zrestartuj Apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+
+    - name: Czekaj, aż aplikacja odpowie
+      ansible.builtin.uri:
+        url: "{{ adres_aplikacji }}/health"
+      register: zdrowie
+      # TODO 2: ponawiaj, aż zdrowie.status == 200: until, retries: 10, delay: 2
+
+    # 3. assert: sprawdź warunek i zatrzymaj się z czytelnym komunikatem
+    - name: Pobierz stronę główną
+      ansible.builtin.uri:
+        url: "{{ adres_aplikacji }}/"
+        return_content: true
+      register: strona
+
+    - name: Aplikacja jest połączona z bazą
+      # TODO 3: zamień debug na moduł ansible.builtin.assert
+      #   that: tekst 'połączona z' jest w strona.content
+      #   fail_msg i success_msg z nazwą hosta
+      ansible.builtin.debug:
+        msg: "TODO 3"
+
+    # 4. failed_when: grep -c bez trafień zwraca rc=1 — to nie błąd
+    - name: Policz błędy w logu aplikacji
+      ansible.builtin.command: grep -c ERROR /var/log/naszaaplikacja/error.log
+      register: bledy
+      changed_when: false
+      # TODO 4: rc=1 (brak trafień) to nie błąd; błąd to rc > 1 — dopisz failed_when
+
+    # 5. block / rescue / always: zmiana, sprawdzenie, wycofanie przy błędzie
+    - name: Zmiana wersji z wycofaniem przy błędzie
+      block:
+        - name: Zrób kopię zapasową konfiguracji
+          ansible.builtin.copy:
+            src: "{{ plik_konfiguracji }}"
+            dest: "{{ plik_konfiguracji }}.kopia"
+            remote_src: true
+            mode: preserve
+
+        - name: Zapisz nową wersję
+          ansible.builtin.lineinfile:
+            path: "{{ plik_konfiguracji }}"
+            regexp: '^wersja = '
+            line: "wersja = {{ nowa_wersja }}"
+
+        - name: Zepsuj konfigurację (tylko z -e zepsuj=true)
+          ansible.builtin.lineinfile:
+            path: "{{ plik_konfiguracji }}"
+            regexp: '^\[config\]'
+            line: "[konfiguracja]"
+          when: zepsuj | default(false) | bool
+
+        - name: Zrestartuj Apache z nową konfiguracją
+          ansible.builtin.service:
+            name: apache2
+            state: restarted
+
+        - name: Strona główna działa po zmianie
+          ansible.builtin.uri:
+            url: "{{ adres_aplikacji }}/"
+          register: po_zmianie
+          until: po_zmianie.status == 200
+          retries: 5
+          delay: 2
+
+      rescue:
+        # TODO 5: trzy zadania wycofania:
+        #   - przywróć plik z kopii: ansible.builtin.copy, src: "{{ plik_konfiguracji }}.kopia",
+        #     dest: "{{ plik_konfiguracji }}", remote_src: true, owner: root, group: www-data, mode: '0640'
+        #     (bez owner/group plik dostanie właściciela kopii — root:root — i Apache go nie przeczyta)
+        #   - zrestartuj Apache
+        #   - zakończ błędem z komunikatem: ansible.builtin.fail, msg: "Zmiana … wycofana"
+        - name: Wycofanie — do uzupełnienia
+          ansible.builtin.debug:
+            msg: "TODO 5"
+
+      always:
+        - name: Zapisz wpis w dzienniku zmian
+          ansible.builtin.lineinfile:
+            path: /var/log/naszaaplikacja/zmiany.log
+            line: "{{ now(utc=true).isoformat() }} wersja {{ nowa_wersja }}: {{ 'BŁĄD' if ansible_failed_task is defined else 'OK' }}"
+            create: true
+            mode: '0644'

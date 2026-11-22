@@ -1,0 +1,7 @@
+# Plik generuje Ansible — nie edytuj ręcznie
+[aplikacja]
+nazwa = {{ aplikacja }}
+port = {{ aplikacja_port }}
+{% for serwer in backendy %}
+backend = {{ serwer }}:{{ aplikacja_port }}
+{% endfor %}

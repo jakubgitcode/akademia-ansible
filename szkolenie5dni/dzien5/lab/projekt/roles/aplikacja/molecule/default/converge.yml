@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: Rola aplikacja z wartościami domyślnymi (bez bazy)
+      ansible.builtin.include_role:
+        name: aplikacja

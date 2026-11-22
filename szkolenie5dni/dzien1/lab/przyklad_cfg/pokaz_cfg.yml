@@ -1,0 +1,17 @@
+---
+# Pokaz ustawień z ansible.cfg obok:
+#   ansible-playbook pokaz_cfg.yml              # 1. raz: zbiera fakty i zapisuje je do ~/.ansible/fakty
+#   ansible-playbook pokaz_cfg.yml              # 2. raz: fakty z cache — porównaj czasy na końcu (profile_tasks)
+#   ls ~/.ansible/fakty                         # jeden plik JSON na host
+#   ansible-playbook pokaz_cfg.yml -l lokalnie  # tylko localhost (gdy hosty labu nie działają)
+- name: Skąd host bierze zmienne i fakty
+  hosts: all
+
+  tasks:
+    - name: Grupy, zmienne z inventory i fakty (zebrane albo z cache)
+      ansible.builtin.debug:
+        msg:
+          - "grupy: {{ group_names | join(', ') }}"
+          - "srodowisko: {{ srodowisko }}, lokalizacja: {{ lokalizacja }}, http_port: {{ http_port | default('brak') }}"
+          - "system: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "opis: {{ opis | default('brak') }}"

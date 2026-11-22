@@ -1,0 +1,6 @@
+---
+# reload: nginx wczytuje nową konfigurację bez zrywania połączeń
+- name: Przeładuj nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded

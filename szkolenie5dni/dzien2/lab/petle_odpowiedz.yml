@@ -1,0 +1,45 @@
+---
+# L7, krok 2 — pętle (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook petle_odpowiedz.yml
+
+- name: Pętle w praktyce
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    - name: Utwórz strukturę katalogów aplikacji
+      ansible.builtin.file:
+        path: "{{ app_katalog }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ katalogi_aplikacji }}"
+
+    - name: Utwórz użytkowników aplikacji (tylko aktywnych)
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        shell: "{{ item.shell }}"
+        state: present
+      loop: "{{ uzytkownicy_aplikacji }}"
+      when: item.aktywny | bool
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Sprawdź, czy są pliki konfiguracyjne
+      ansible.builtin.stat:
+        path: "/etc/szkolenie/{{ item }}"
+      register: konfigi
+      loop:
+        - app.conf
+        - app_env.conf
+        - cache.conf
+
+    - name: Zgłoś brakujące pliki
+      ansible.builtin.debug:
+        msg: "BRAK pliku: {{ item.item }}"
+      loop: "{{ konfigi.results }}"
+      when: not item.stat.exists
+      loop_control:
+        label: "{{ item.item }}"

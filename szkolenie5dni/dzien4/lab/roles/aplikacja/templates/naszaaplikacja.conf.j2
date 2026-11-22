@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+<VirtualHost *:{{ aplikacja_port }}>
+    ServerName naszaaplikacja.szkolenie.pl
+    ErrorLog {{ aplikacja_log_dir }}/error.log
+    CustomLog {{ aplikacja_log_dir }}/access.log combined
+
+    WSGIDaemonProcess naszaaplikacja user=www-data group=www-data threads=5 python-home={{ aplikacja_katalog }}/venv
+    WSGIProcessGroup naszaaplikacja
+    WSGIScriptAlias / {{ aplikacja_katalog }}/naszaaplikacja.wsgi
+
+    <Directory {{ aplikacja_katalog }}>
+        Require all granted
+    </Directory>
+</VirtualHost>

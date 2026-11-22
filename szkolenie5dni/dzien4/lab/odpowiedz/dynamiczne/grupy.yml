@@ -1,0 +1,18 @@
+---
+# Inventory hybrydowe: ten plik (statyczny) dokłada grupy do hostów, które znajduje skrypt kontenery.py.
+# Ansible czyta wszystkie pliki z katalogu po kolei (alfabetycznie) i łączy hosty o tych samych nazwach.
+#   ansible-inventory -i dynamiczne/ --graph
+all:
+  children:
+    produkcja:
+      hosts:
+        web01:
+        web02:
+        web03:
+    deweloperskie:
+      hosts:
+        web04:
+    monitorowane:
+      hosts:
+        web02:
+        web04:

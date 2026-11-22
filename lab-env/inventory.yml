@@ -1,0 +1,26 @@
+---
+# Dane połączenia do kontenerów lab-env web01 i web02. Klucz tworzy ./setup.sh.
+# web03 i web04 (porty 2223, 2224) celowo nie są tu wpisane: to inventory dokłada się do labów 8×4h (hosts: all),
+# a one są pisane na dwa hosty. Dni 3 i 4 szkolenia pięciodniowego mają je we własnych inventory.
+#
+# Samodzielnie:            ansible -i lab-env/inventory.yml all -m ping
+# Razem z inventory labu:  ansible-playbook -i inventory/hosts.yml -i ../../../lab-env/inventory.yml site.yml
+#   (drugie -i nadpisuje adresy z labu, więc nie trzeba edytować hosts.yml)
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3   # bez tego Ansible ostrzega przy każdym uruchomieniu
+  children:
+    webservers:
+      hosts:
+        web01:
+          ansible_host: 127.0.0.1
+          ansible_port: 2221
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/akademia_lab_key
+          ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        web02:
+          ansible_host: 127.0.0.1
+          ansible_port: 2222
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/akademia_lab_key
+          ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"

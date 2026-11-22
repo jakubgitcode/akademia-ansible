@@ -1,0 +1,61 @@
+---
+# L4 — Pierwszy playbook
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml pierwszy_playbook.yml
+#
+# Uzupelnij miejsca oznaczone # TODO
+
+- name: Pierwszy playbook — poznajemy hosty
+  hosts: all
+  become: false
+  gather_facts: true
+
+  vars:
+    katalog_lab: /tmp/akademia
+    # TODO: Dodaj zmienna "powitanie" z dowolnym tekstem
+
+  tasks:
+
+    - name: Sprawdz polaczenie
+      # TODO: Uzyj modulu ansible.builtin.ping (modul nie przyjmuje parametrow)
+
+    - name: Przedstaw hosta
+      ansible.builtin.debug:
+        msg: >
+          Jestem {{ inventory_hostname }},
+          system: {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }},
+          RAM: {{ ansible_facts.memtotal_mb }} MB
+
+    - name: Wyswietl powitanie
+      # TODO: Uzyj modulu ansible.builtin.debug
+      #       Wyswietl wartosc zmiennej "powitanie"
+
+    - name: Stworz katalog laboratoryjny
+      # TODO: Uzyj modulu ansible.builtin.file
+      #       Sciezka: uzyj zmiennej katalog_lab
+      #       Stan: directory
+      #       Uprawnienia: '0755'
+
+    - name: Zapisz wizytowke hosta do pliku
+      ansible.builtin.copy:
+        dest: "{{ katalog_lab }}/wizytowka.txt"
+        # TODO: W parametrze content umiesc tekst zawierajacy:
+        #       - nazwe hosta (inventory_hostname)
+        #       - dystrybucje (ansible_facts.distribution)
+        #       - adres IP (ansible_facts.default_ipv4.address)
+        content: |
+          Host:
+          System:
+          IP:
+
+    - name: Sprawdz uptime
+      ansible.builtin.command: uptime
+      register: wynik_uptime
+      changed_when: false      # samo odczytanie nie zmienia stanu hosta
+
+    - name: Pokaz uptime
+      ansible.builtin.debug:
+        msg: "{{ wynik_uptime.stdout }}"
+
+    # Krok 5 (po obiedzie): dopisz tutaj zadanie, które zainstaluje pakiety tree i jq
+    #   moduł ansible.builtin.apt; uprawnienia administratora tylko dla tego zadania (become)

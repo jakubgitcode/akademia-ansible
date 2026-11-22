@@ -1,0 +1,69 @@
+---
+# L7, krok 3 — warunki, register, set_fact
+# Uruchomienie:
+#   ansible-playbook warunki.yml
+#
+# Uzupełnij miejsca oznaczone # TODO.
+# Po uruchomieniu porównaj: które zadania są „skipping” na web01 (dev), a które na web02 (prod) — i dlaczego?
+
+- name: Warunki w praktyce
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    # GOTOWE — fakty, na których budujemy warunki
+    - name: Przedstaw hosta
+      ansible.builtin.debug:
+        msg: >
+          {{ inventory_hostname }}:
+          {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+          (rodzina: {{ ansible_facts.os_family }}),
+          RAM: {{ ansible_facts.memtotal_mb }} MB,
+          grupy: {{ group_names }}
+
+    - name: Katalog aplikacji (potrzebny dalej)
+      ansible.builtin.file:
+        path: "{{ app_katalog }}"
+        state: directory
+        mode: '0755'
+
+    - name: Zainstaluj ncdu (tylko rodzina Debian)
+      # TODO: moduł ansible.builtin.apt (name: ncdu, state: present,
+      #       update_cache: true, cache_valid_time: 3600)
+      #       warunek: rodzina systemu (fakt ansible_facts.os_family) == "Debian"
+
+    - name: Komunikat trybu debug
+      # TODO: moduł ansible.builtin.debug
+      #       msg: "UWAGA: {{ inventory_hostname }} działa w trybie DEBUG"
+      #       warunek: app_debug jest prawdą (pamiętaj o | default(false) | bool)
+
+    - name: Oznacz serwer produkcyjny
+      # TODO: moduł ansible.builtin.copy
+      #       content: "Serwer produkcyjny — zmiany tylko przez Ansible!\n"
+      #       dest: "{{ app_katalog }}/PRODUKCJA", mode: '0644'
+      #       warunek: host należy do grupy prod
+      #       (zmienna specjalna group_names; cały warunek w cudzysłowie!)
+
+    - name: Ostrzeżenie — produkcja z małą ilością RAM
+      # TODO: moduł ansible.builtin.debug
+      #       msg: "UWAGA: produkcyjny {{ inventory_hostname }} ma tylko {{ ansible_facts.memtotal_mb }} MB RAM"
+      #       warunek jako LISTA (działa jak „i”):
+      #         - host w grupie prod
+      #         - ansible_facts.memtotal_mb < 4096
+
+    # GOTOWE — register: wynik zadania zapisany w zmiennej
+    - name: Sprawdź wersję Pythona na hoście
+      ansible.builtin.command: python3 --version
+      register: python_wersja
+      changed_when: false
+
+    - name: Wylicz własne zmienne hosta
+      # TODO: moduł ansible.builtin.set_fact
+      #       python_na_hoscie: "{{ python_wersja.stdout.split()[1] }}"
+      #       klasa_serwera: "{{ 'duży' if ansible_facts.memtotal_mb >= 4096 else 'mały' }}"
+
+    # GOTOWE — zmienne z set_fact są dostępne w kolejnych zadaniach (i playach) tego hosta
+    - name: Pokaż wyliczone zmienne
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: Python {{ python_na_hoscie }}, serwer {{ klasa_serwera }}"

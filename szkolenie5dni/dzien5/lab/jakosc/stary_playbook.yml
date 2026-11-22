@@ -1,0 +1,23 @@
+---
+# L20, krok 2 — playbook w stylu sprzed kilku lat (tak wyglądała część playbooków repozytorium szkolenia).
+# Działa, ale ansible-lint ma do niego wiele uwag. Najpierw:  ansible-lint jakosc/stary_playbook.yml
+- hosts: webservers
+  become: yes
+  tasks:
+    - name: install packages
+      apt: name={{ item }} state=latest update_cache=yes
+      with_items:
+        - htop
+        - vim
+
+    - name: company motd
+      copy: content="Serwer zarzadzany przez Ansible" dest=/etc/motd mode=644
+
+    - name: restart cron
+      command: service cron restart
+
+    - name: check disk
+      shell: df -h | grep /dev/
+      register: dysk
+
+    - debug: var=dysk.stdout_lines

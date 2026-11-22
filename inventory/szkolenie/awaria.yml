@@ -1,0 +1,13 @@
+---
+# Pokaz: jak wygląda host, który nie odpowiada. Adres z puli 192.0.2.0/24 (TEST-NET-1) nigdzie nie prowadzi.
+# Osobny plik, żeby plays z "hosts: all" nie kończyły się błędem w zwykłej pracy.
+#   ansible apache -i ~/akademia-ansible/inventory/szkolenie/prod.yml -i ~/akademia-ansible/inventory/szkolenie/awaria.yml -m ping
+#   → web01–web03: SUCCESS, nieistniejehost: UNREACHABLE (po ok. 10 s)
+all:
+  children:
+    apache:
+      hosts:
+        nieistniejehost:
+          ansible_host: 192.0.2.10
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/akademia_chmura

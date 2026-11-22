@@ -1,0 +1,4 @@
+---
+# Zmienne dla grupy prod (w naszym inventory: web02).
+# L5, krok 4: odkomentuj poniższą linię.
+# ciekawa_zmienna: "z group_vars/prod.yml"

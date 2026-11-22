@@ -1,0 +1,22 @@
+---
+# PRZYKŁAD do przeczytania (nie uruchamiamy; leży poza katalogiem dynamiczne/, żeby Ansible go nie wczytywał): wtyczka inventory amazon.aws.aws_ec2 — maszyny kursantów
+# tego szkolenia w AWS (lab-env/chmura/aws). Wymaga kolekcji amazon.aws, boto3 i poświadczeń AWS.
+# Inventory dynamiczne: działające maszyny kursantów pobierane z AWS (wtyczka amazon.aws.aws_ec2).
+# Sprawdzenie:  ansible-inventory --graph
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-central-1                 # ten sam region co w vars/szkolenie.yml
+filters:
+  tag:projekt: akademia-ansible
+  tag:rola: kursant
+  instance-state-name: running
+# Tagi tylko jako ec2_tags (stara zmienna "tags" koliduje z zarezerwowaną nazwą Ansible).
+# Linię usuń, gdy amazon.aws przestanie ją rozpoznawać (zapowiedź: po 1.12.2026).
+use_deprecated_tags: false
+hostnames:
+  - tag:Name                     # np. ansible-2026-12-kursant01
+compose:
+  ansible_host: public_ip_address
+keyed_groups:
+  - key: ec2_tags.szkolenie      # grupa szkolenie_<identyfikator>, gdy prowadzisz kilka szkoleń naraz
+    prefix: szkolenie

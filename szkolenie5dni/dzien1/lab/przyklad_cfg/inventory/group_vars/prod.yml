@@ -1,0 +1,3 @@
+---
+# prod jest grupą podrzędną webservers i wygrywa z all: web02 ma srodowisko "produkcja", web01 — "akademia".
+srodowisko: produkcja

@@ -1,0 +1,3 @@
+# git diff / git log -p pokazują odszyfrowaną treść tych plików (vault id "szkolenie"; konfiguracja: pokaz_vault/README.md, git-vault-view.sh)
+pokaz_vault/vault.yml            diff=ansible-vault
+inventory/szkolenie/*.vault      diff=ansible-vault

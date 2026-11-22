@@ -1,0 +1,8 @@
+---
+# TODO (L7, krok 1): uzupełnij zmienne środowiska PRODUKCYJNEGO (na wzór dev.yml):
+#
+#   srodowisko:     prod
+#   app_log_level:  warning
+#   app_replicas:   3
+#
+# app_debug ma zostać false — ta wartość JUŻ JEST w all.yml, więc jej tu nie powtarzamy.

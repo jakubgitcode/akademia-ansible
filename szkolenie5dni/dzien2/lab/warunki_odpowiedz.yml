@@ -1,0 +1,66 @@
+---
+# L7, krok 3 — warunki, register, set_fact (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook warunki_odpowiedz.yml
+
+- name: Warunki w praktyce
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    - name: Przedstaw hosta
+      ansible.builtin.debug:
+        msg: >
+          {{ inventory_hostname }}:
+          {{ ansible_facts.distribution }} {{ ansible_facts.distribution_version }}
+          (rodzina: {{ ansible_facts.os_family }}),
+          RAM: {{ ansible_facts.memtotal_mb }} MB,
+          grupy: {{ group_names }}
+
+    - name: Katalog aplikacji (potrzebny dalej)
+      ansible.builtin.file:
+        path: "{{ app_katalog }}"
+        state: directory
+        mode: '0755'
+
+    - name: Zainstaluj ncdu (tylko rodzina Debian)
+      ansible.builtin.apt:
+        name: ncdu
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_facts.os_family == "Debian"
+
+    - name: Komunikat trybu debug
+      ansible.builtin.debug:
+        msg: "UWAGA: {{ inventory_hostname }} działa w trybie DEBUG"
+      when: app_debug | default(false) | bool
+
+    - name: Oznacz serwer produkcyjny
+      ansible.builtin.copy:
+        content: "Serwer produkcyjny — zmiany tylko przez Ansible!\n"
+        dest: "{{ app_katalog }}/PRODUKCJA"
+        mode: '0644'
+      when: "'prod' in group_names"
+
+    - name: Ostrzeżenie — produkcja z małą ilością RAM
+      ansible.builtin.debug:
+        msg: "UWAGA: produkcyjny {{ inventory_hostname }} ma tylko {{ ansible_facts.memtotal_mb }} MB RAM"
+      when:
+        - "'prod' in group_names"
+        - ansible_facts.memtotal_mb < 4096
+
+    - name: Sprawdź wersję Pythona na hoście
+      ansible.builtin.command: python3 --version
+      register: python_wersja
+      changed_when: false
+
+    - name: Wylicz własne zmienne hosta
+      ansible.builtin.set_fact:
+        python_na_hoscie: "{{ python_wersja.stdout.split()[1] }}"
+        klasa_serwera: "{{ 'duży' if ansible_facts.memtotal_mb >= 4096 else 'mały' }}"
+
+    - name: Pokaż wyliczone zmienne
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: Python {{ python_na_hoscie }}, serwer {{ klasa_serwera }}"

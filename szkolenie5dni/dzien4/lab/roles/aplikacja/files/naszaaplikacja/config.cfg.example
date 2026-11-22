@@ -1,0 +1,13 @@
+[config]
+nazwa = Nasza aplikacja
+srodowisko = deweloperskie
+wersja = 1.0
+# port używany tylko przy uruchomieniu deweloperskim (python aplikacja.py); pod Apache port ustawia VirtualHost
+port = 5081
+
+# Baza danych — opcjonalnie. Bez tej sekcji aplikacja działa bez bazy.
+# [baza]
+# host = 127.0.0.1
+# uzytkownik = naszaaplikacja
+# haslo = zmien_mnie
+# nazwa = naszaaplikacja

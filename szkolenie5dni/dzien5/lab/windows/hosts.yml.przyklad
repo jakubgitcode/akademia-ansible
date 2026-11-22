@@ -1,0 +1,17 @@
+---
+# Pokaz Windows (dzień 5) — inventory hosta Windows. Adres i hasło od prowadzącego; hasło w vault.
+all:
+  children:
+    windows:
+      hosts:
+        win01:
+          ansible_host: 10.42.1.200
+      vars:
+        ansible_user: Administrator
+        ansible_password: "{{ vault_windows_haslo }}"
+        # Wariant 1: WinRM (domyślny w Windows Server)
+        ansible_connection: winrm
+        ansible_port: 5986
+        ansible_winrm_transport: ntlm
+        ansible_winrm_server_cert_validation: ignore
+        # Wariant 2: OpenSSH (Windows Server 2019+): ansible_connection: ssh, ansible_shell_type: powershell

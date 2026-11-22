@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+[config]
+nazwa = {{ aplikacja_nazwa }}
+srodowisko = {{ srodowisko | default('nieznane') }}
+wersja = {{ aplikacja_wersja }}
+port = {{ aplikacja_port }}

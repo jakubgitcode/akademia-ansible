@@ -1,0 +1,52 @@
+---
+# Restart jednego węzła: wszystkie zadania wykonywane na węźle {{ wezel }} (delegate_to).
+- name: "Pozostałe węzły obsługują ruch, zanim zdejmiemy {{ wezel }}"
+  ansible.builtin.uri:
+    url: http://localhost/
+    return_content: true
+  delegate_to: "{{ groups['loadbalancers'][0] }}"
+  register: inne
+  until: "'Serwer: ' in inne.content and ('Serwer: ' ~ wezel) not in inne.content"
+  retries: 30
+  delay: 1
+
+- name: "Zatrzymaj Apache na {{ wezel }}"
+  ansible.builtin.service:
+    name: apache2
+    state: stopped
+  delegate_to: "{{ wezel }}"
+
+- name: "Aktualizacja na {{ wezel }} trwa 5 sekund"
+  ansible.builtin.wait_for:
+    timeout: 5
+  delegate_to: "{{ wezel }}"
+
+- name: "Symulowana awaria na {{ wezel }} (tylko z -e awaria_na=…)"
+  ansible.builtin.fail:
+    msg: "Aktualizacja na {{ wezel }} nie powiodła się"
+  when: wezel == awaria_na | default('')
+
+- name: "Uruchom Apache na {{ wezel }}"
+  ansible.builtin.service:
+    name: apache2
+    state: started
+  delegate_to: "{{ wezel }}"
+
+- name: "Czekaj, aż aplikacja na {{ wezel }} odpowie"
+  ansible.builtin.uri:
+    url: "http://localhost:{{ aplikacja_port | default(80) }}/health"
+  delegate_to: "{{ wezel }}"
+  register: zdrowie
+  until: zdrowie.status == 200
+  retries: 15
+  delay: 1
+
+- name: "Czekaj, aż load balancer znów kieruje ruch na {{ wezel }}"
+  ansible.builtin.uri:
+    url: http://localhost/
+    return_content: true
+  delegate_to: "{{ groups['loadbalancers'][0] }}"
+  register: przez_lb
+  until: "('Serwer: ' ~ wezel) in przez_lb.content"
+  retries: 30
+  delay: 1

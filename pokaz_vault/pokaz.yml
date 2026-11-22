@@ -1,0 +1,21 @@
+---
+# Pokaz: sekrety z pliku zaszyfrowanego w całości (vault.yml), bez wypisywania ich w wyniku.
+#   cd ~/akademia-ansible/pokaz_vault && ansible-playbook pokaz.yml
+- name: Pokaz ansible-vault
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - zmienne.yml
+    - vault.yml
+  tasks:
+    - name: Co Ansible odczytał (bez wartości sekretów)
+      ansible.builtin.debug:
+        msg:
+          - "api_token: {{ api_token | length }} znaków"
+          - "użytkownicy: {{ uzytkownicy | map(attribute='nazwa') | join(', ') }}"
+
+    - name: Hasła użytkowników — no_log ukrywa wynik zadania
+      ansible.builtin.debug:
+        msg: "{{ item.nazwa }}: {{ item.haslo }}"
+      loop: "{{ uzytkownicy }}"
+      no_log: true

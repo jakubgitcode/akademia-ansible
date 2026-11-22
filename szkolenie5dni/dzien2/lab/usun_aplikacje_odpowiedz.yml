@@ -1,0 +1,55 @@
+---
+# L10, część B — usunięcie aplikacji razem z Apache (ROZWIĄZANIE; porównaj z wersją od asystenta AI)
+# Uruchomienie:
+#   ansible-playbook usun_aplikacje_odpowiedz.yml --check --diff
+#   ansible-playbook usun_aplikacje_odpowiedz.yml
+#   ansible-playbook usun_aplikacje_odpowiedz.yml       # drugi raz: changed=0
+#
+# Kolejność odwrotna niż przy wdrożeniu. Same moduły, bez shell — każde zadanie opisuje stan „ma nie być”.
+
+- name: Usunięcie naszaaplikacja
+  hosts: webservers
+  become: true
+
+  vars:
+    aplikacja_katalog: /var/www/naszaaplikacja
+    aplikacja_log_dir: /var/log/naszaaplikacja
+
+  tasks:
+
+    # Usługę zatrzymujemy jawnie, zanim usuniemy pakiet. Warunek: przy drugim uruchomieniu usługi już nie ma,
+    # a moduł service zgłosiłby błąd „Could not find the requested service”.
+    - name: Sprawdź, jakie usługi są na hoście
+      ansible.builtin.service_facts:
+
+    - name: Zatrzymaj Apache
+      ansible.builtin.service:
+        name: apache2
+        state: stopped
+        enabled: false
+      when: "'apache2.service' in ansible_facts.services"
+
+    - name: Usuń VirtualHost aplikacji
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apache2/sites-enabled/naszaaplikacja.conf
+        - /etc/apache2/sites-available/naszaaplikacja.conf
+
+    - name: Usuń Apache i mod_wsgi razem z konfiguracją
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - libapache2-mod-wsgi-py3
+        state: absent
+        purge: true
+        autoremove: true
+
+    - name: Usuń katalog aplikacji i logi
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ aplikacja_katalog }}"
+        - "{{ aplikacja_log_dir }}"

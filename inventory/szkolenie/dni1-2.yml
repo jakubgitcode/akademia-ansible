@@ -1,0 +1,10 @@
+---
+# Dni 1–2: te same hosty co w lab-env (web01, web02), ale na maszynach w chmurze.
+# Adresy: host_vars/. Użycie — drugi -i obok inventory labu:
+#   ansible-playbook -i inventory/hosts.yml -i ~/akademia-ansible/inventory/szkolenie/dni1-2.yml pierwszy_playbook_odpowiedz.yml
+all:
+  children:
+    chmura:
+      hosts:
+        web01:
+        web02:

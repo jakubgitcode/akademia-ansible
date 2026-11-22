@@ -1,0 +1,14 @@
+# Nie wysyłamy: hasła vault, klucze, pliki tymczasowe Ansible i Pythona
+.vault*
+*.pem
+id_rsa*
+id_ed25519*
+*.retry
+__pycache__/
+*.pyc
+.venv/
+venv/
+galaxy/
+.fakty/
+keys/
+logi/

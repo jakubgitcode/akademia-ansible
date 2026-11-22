@@ -1,0 +1,4 @@
+# Narzędzia jakości (L20). Instalacja w venv z Ansible: pip install -r jakosc/requirements.txt
+ansible-lint==26.11.0
+molecule==26.11.0
+molecule-plugins[docker]==26.11.0

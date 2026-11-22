@@ -1,0 +1,68 @@
+---
+# L18, część B — restart serwerów aplikacji bez przerwy w działaniu (ROZWIĄZANIE). Prod: web02, web03 za load balancerem.
+#   ansible-playbook -i inventories/prod restart_aplikacji.yml
+#   ansible-playbook -i inventories/prod restart_aplikacji.yml -e awaria_na=web02     # awaria na pierwszym węźle
+# W drugim terminalu obserwuj, co widzi użytkownik:
+#   while true; do curl -s -o /dev/null -w '%{http_code} ' http://localhost:8081/; sleep 0.3; done
+
+- name: Restart serwerów aplikacji
+  hosts: appservers
+  become: true
+  serial: 1                  # cały play po jednym hoście: drugi czeka, aż pierwszy skończy
+  # Przy serial: 1 błąd jedynego hosta w partii zatrzymuje cały play. Przy większych partiach
+  # (np. serial: 2 z 10 hostów) próg ustawia max_fail_percentage.
+
+  vars:
+    adres_aplikacji: "http://localhost:{{ aplikacja_port | default(80) }}"
+    lb: "{{ groups['loadbalancers'][0] }}"
+
+  tasks:
+    # Zanim zdejmiesz węzeł: czy pozostałe obsługują ruch? (nginx po awarii omija serwer jeszcze przez kilka sekund)
+    - name: Pozostałe serwery obsługują ruch
+      ansible.builtin.uri:
+        url: http://localhost/
+        return_content: true
+      delegate_to: "{{ lb }}"
+      register: inne
+      until: "'Serwer: ' in inne.content and ('Serwer: ' ~ inventory_hostname) not in inne.content"
+      retries: 30
+      delay: 1
+
+    - name: Zatrzymaj Apache (początek aktualizacji)
+      ansible.builtin.service:
+        name: apache2
+        state: stopped
+
+    - name: Aktualizacja trwa 5 sekund
+      ansible.builtin.wait_for:
+        timeout: 5
+
+    - name: Symulowana awaria aktualizacji (tylko z -e awaria_na=<host>)
+      ansible.builtin.fail:
+        msg: "Aktualizacja na {{ inventory_hostname }} nie powiodła się"
+      when: inventory_hostname == awaria_na | default('')
+
+    - name: Uruchom Apache
+      ansible.builtin.service:
+        name: apache2
+        state: started
+
+    - name: Czekaj, aż aplikacja odpowie
+      ansible.builtin.uri:
+        url: "{{ adres_aplikacji }}/health"
+      register: zdrowie
+      until: zdrowie.status == 200
+      retries: 15
+      delay: 1
+
+    # nginx po błędzie omija serwer przez kilka sekund. Następny węzeł zatrzymujemy dopiero wtedy,
+    # gdy load balancer znów kieruje ruch na ten.
+    - name: Czekaj, aż load balancer znów kieruje ruch na ten serwer
+      ansible.builtin.uri:
+        url: http://localhost/
+        return_content: true
+      delegate_to: "{{ lb }}"
+      register: przez_lb
+      until: "('Serwer: ' ~ inventory_hostname) in przez_lb.content"
+      retries: 30
+      delay: 1

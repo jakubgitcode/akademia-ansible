@@ -1,0 +1,50 @@
+---
+# L17 — raport o serwerach aplikacji (ROZWIĄZANIE: pięć poprawek opisanych w komentarzach).
+#   ansible-playbook debuguj.yml
+
+- name: Raport o serwerach aplikacji
+  hosts: appservers
+  become: true
+
+  vars:
+    raport_plik: /tmp/raport_serwera.txt
+    pokaz_szczegoly: "false"
+
+  tasks:
+
+    - name: Sprawdź miejsce na dysku
+      ansible.builtin.command: df -h /
+      register: dysk
+      changed_when: false
+
+    # 1. YAML: wartość zaczynająca się od {{ musi być w cudzysłowie
+    - name: Pokaż miejsce na dysku
+      ansible.builtin.debug:
+        msg: "{{ dysk.stdout_lines }}"
+
+    # 2. grep -c bez trafień zwraca rc=1 — to nie błąd. Błąd to rc ≥ 2 (np. brak pliku).
+    - name: Policz błędy w logu aplikacji
+      ansible.builtin.command: grep -c ERROR /var/log/naszaaplikacja/error.log
+      register: bledy
+      changed_when: false
+      failed_when: bledy.rc > 1
+
+    # 3. literówka w nazwie zmiennej: raport_plk → raport_plik
+    # 4. w szablonie: ansible_facts.default_ipv4.address (słownik default_ipv4, klucz address)
+    - name: Zapisz raport
+      ansible.builtin.template:
+        src: templates/raport.txt.j2
+        dest: "{{ raport_plik }}"
+        mode: '0644'
+
+    # 5. "false" w cudzysłowie to napis, a warunek musi dać wartość logiczną: | bool
+    - name: Pokaż szczegóły raportu
+      ansible.builtin.command: "cat {{ raport_plik }}"
+      register: raport
+      changed_when: false
+      when: pokaz_szczegoly | bool
+
+    - name: Pokaż raport
+      ansible.builtin.debug:
+        var: raport.stdout_lines
+      when: raport.stdout_lines is defined

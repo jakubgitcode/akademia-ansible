@@ -1,0 +1,10 @@
+---
+# Pętla po węzłach klastra. any_errors_fatal: błąd na jednym węźle kończy cały play.
+- name: Restart węzłów po kolei
+  any_errors_fatal: true
+  block:
+    - name: Restart jednego węzła
+      ansible.builtin.include_tasks: restart_wezla.yml
+      loop: "{{ groups['appservers'] }}"
+      loop_control:
+        loop_var: wezel

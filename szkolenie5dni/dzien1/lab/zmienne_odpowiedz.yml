@@ -1,0 +1,22 @@
+---
+# L5 — Krok 7: zmienne w playbooku kontra zmienne z inventory (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml zmienne_odpowiedz.yml
+#   ansible-playbook -i inventory/hosts.yml zmienne_odpowiedz.yml -e 'ciekawa_zmienna="z linii poleceń"'
+
+- name: Skąd host bierze wartość zmiennej
+  hosts: webservers
+  gather_facts: false
+
+  vars:
+    ciekawa_zmienna: "z vars w playbooku"
+
+  tasks:
+
+    - name: Pokaż wartość zmiennej
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}: ciekawa_zmienna = {{ ciekawa_zmienna }}"
+
+    - name: Pokaż grupy hosta (zmienna specjalna group_names)
+      ansible.builtin.debug:
+        var: group_names

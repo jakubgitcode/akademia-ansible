@@ -1,0 +1,56 @@
+---
+# L6, część A — pakiety, aktualizacja systemu, usługa (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook operacje_pakiety_odpowiedz.yml
+
+- name: Standard firmowy — pakiety i usługi
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    - name: Zainstaluj firmowy zestaw narzędzi
+      ansible.builtin.apt:
+        name:
+          - htop
+          - vim
+          - curl
+          - tree
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Usuń nano razem z konfiguracją
+      ansible.builtin.apt:
+        name: nano
+        state: absent
+        purge: true
+        autoremove: true
+
+    - name: Bezpieczna aktualizacja systemu
+      ansible.builtin.apt:
+        upgrade: safe
+
+    - name: Zainstaluj harmonogram zadań cron
+      ansible.builtin.apt:
+        name: cron
+        state: present
+
+    - name: Uruchom cron i włącz go przy starcie systemu
+      ansible.builtin.service:
+        name: cron
+        state: started
+        enabled: true
+
+    - name: Sprawdź, czy system wymaga restartu
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Poinformuj o konieczności restartu
+      ansible.builtin.debug:
+        msg: "UWAGA: {{ inventory_hostname }} wymaga restartu po aktualizacji (jądro, biblioteki)."
+      when: reboot_required.stat.exists
+
+    # Świadomie NIE restartujemy hostów w labie.
+    # Na produkcji: moduł ansible.builtin.reboot i serial (restart po kolei — dzień 4).

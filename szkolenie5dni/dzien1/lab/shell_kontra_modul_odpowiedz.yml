@@ -1,0 +1,31 @@
+---
+# L4 — Kroki 6 i 7: shell kontra moduł, parametr creates (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook -i inventory/hosts.yml shell_kontra_modul_odpowiedz.yml
+
+- name: Shell kontra moduł
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: Odśwież listę pakietów (tylko gdy starsza niż godzina)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Instalacja przez shell — creates mówi, po czym poznać, że już zrobione
+      ansible.builtin.shell:
+        cmd: apt-get install -y cowsay
+        creates: /usr/games/cowsay
+
+    - name: Instalacja modułem — opisujemy stan, a nie polecenie
+      ansible.builtin.apt:
+        name: cowsay
+        state: present
+
+    - name: Klucz SSH — polecenie wykona się tylko raz
+      ansible.builtin.command:
+        cmd: ssh-keygen -q -N '' -f /tmp/akademia/klucz
+        creates: /tmp/akademia/klucz    # plik istnieje = zadanie pominięte (plik działa jak semafor)

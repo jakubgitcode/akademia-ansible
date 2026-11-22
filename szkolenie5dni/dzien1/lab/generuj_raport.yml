@@ -1,0 +1,38 @@
+---
+# L3 — Krok 4: generowanie raportu z szablonu Jinja2
+# Uruchomienie:
+#   ansible-playbook generuj_raport.yml
+#   cat /tmp/akademia/raport.txt
+#
+# Uzupelnij szablon: templates/raport.txt.j2
+# Test rozwiazania:
+#   ansible-playbook generuj_raport.yml -e szablon=raport_odpowiedz.txt.j2
+
+- name: Generowanie raportu z szablonu Jinja2
+  hosts: localhost
+  gather_facts: true
+
+  vars_files:
+    - dane.yml
+
+  vars:
+    szablon: raport.txt.j2
+    katalog_wynikowy: /tmp/akademia
+
+  tasks:
+
+    - name: Stworz katalog wynikowy
+      ansible.builtin.file:
+        path: "{{ katalog_wynikowy }}"
+        state: directory
+        mode: '0755'
+
+    - name: Wygeneruj raport z szablonu
+      ansible.builtin.template:
+        src: "templates/{{ szablon }}"
+        dest: "{{ katalog_wynikowy }}/raport.txt"
+        mode: '0644'
+
+    - name: Gotowe — obejrzyj wynik
+      ansible.builtin.debug:
+        msg: "cat {{ katalog_wynikowy }}/raport.txt"

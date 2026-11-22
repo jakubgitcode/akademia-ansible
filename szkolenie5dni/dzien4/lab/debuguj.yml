@@ -1,0 +1,48 @@
+---
+# L17 — raport o serwerach aplikacji. Playbook ma PIĘĆ błędów różnego rodzaju.
+# Uruchom, przeczytaj komunikat (plik, linia, kolumna), popraw JEDEN błąd, uruchom ponownie.
+#   ansible-playbook debuguj.yml          # dev: web04
+#   ansible-playbook debuguj.yml -v       # więcej szczegółów: wynik każdego zadania
+#
+# Nie zaglądaj od razu do odpowiedzi (odpowiedz/debuguj.yml) — celem jest nauka czytania komunikatów.
+
+- name: Raport o serwerach aplikacji
+  hosts: appservers
+  become: true
+
+  vars:
+    raport_plik: /tmp/raport_serwera.txt
+    pokaz_szczegoly: "false"
+
+  tasks:
+
+    - name: Sprawdź miejsce na dysku
+      ansible.builtin.command: df -h /
+      register: dysk
+      changed_when: false
+
+    - name: Pokaż miejsce na dysku
+      ansible.builtin.debug:
+        msg: {{ dysk.stdout_lines }}
+
+    - name: Policz błędy w logu aplikacji
+      ansible.builtin.command: grep -c ERROR /var/log/naszaaplikacja/error.log
+      register: bledy
+      changed_when: false
+
+    - name: Zapisz raport
+      ansible.builtin.template:
+        src: templates/raport.txt.j2
+        dest: "{{ raport_plk }}"
+        mode: '0644'
+
+    - name: Pokaż szczegóły raportu
+      ansible.builtin.command: "cat {{ raport_plik }}"
+      register: raport
+      changed_when: false
+      when: pokaz_szczegoly
+
+    - name: Pokaż raport
+      ansible.builtin.debug:
+        var: raport.stdout_lines
+      when: raport.stdout_lines is defined

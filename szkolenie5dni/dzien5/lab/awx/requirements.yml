@@ -1,0 +1,7 @@
+---
+# Kolekcja do konfiguracji AWX z kodu (L19, część C). Nie ma jej w pakiecie ansible — instalujemy ją osobno:
+#   ansible-galaxy collection install -r awx/requirements.yml -p awx/kolekcje
+# Wersja jak AWX na szkoleniu (24.6.1 — ostatnie wydanie AWX z 2.07.2024).
+collections:
+  - name: awx.awx
+    version: "24.6.1"

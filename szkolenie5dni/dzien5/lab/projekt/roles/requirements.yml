@@ -1,0 +1,6 @@
+---
+# Role z Galaxy — AWX instaluje je przy synchronizacji projektu (szuka pliku roles/requirements.yml).
+# Lokalnie wystarczy: ansible-galaxy install -r requirements.yml (plik w katalogu projektu, z rolami i kolekcjami).
+roles:
+  - name: geerlingguy.mysql
+    version: "6.5.0"

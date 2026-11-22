@@ -1,0 +1,6 @@
+# L1, część B — przypięta wersja Ansible (ROZWIĄZANIE; Twoje numery wersji mogą być inne).
+# Utworzone poleceniem:  pip freeze | grep -iE '^ansible(-core)?==' > requirements.txt
+# Python 3.12 (Ubuntu 24.04):  ansible==14.6.0 + ansible-core==2.21.6
+# Python 3.13 i nowszy:        ansible==15.0.0 + ansible-core==2.22.0
+ansible==14.6.0
+ansible-core==2.21.6

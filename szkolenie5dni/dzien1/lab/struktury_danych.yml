@@ -1,0 +1,47 @@
+---
+# L3 — Krok 2: dostep do struktur danych
+# Uruchomienie:
+#   ansible-playbook struktury_danych.yml
+#
+# Zastap teksty "TODO" wyrazeniami Jinja2 (dane sa w dane.yml)
+
+- name: Struktury danych YAML w praktyce
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - dane.yml
+
+  tasks:
+
+    - name: 1. Nazwa i wersja aplikacji
+      ansible.builtin.debug:
+        # TODO: uzyj aplikacja.nazwa oraz aplikacja.wersja
+        msg: "Aplikacja {{ aplikacja.nazwa }} w wersji {{ aplikacja.wersja }}"
+
+    - name: 2. Drugi pakiet z listy
+      ansible.builtin.debug:
+        # TODO: drugi element listy pakiety (pamietaj — liczymy od 0)
+        msg: "Drugi pakiet to: TODO"
+
+    - name: 3. Nazwa pierwszego uzytkownika
+      ansible.builtin.debug:
+        # TODO: pole name pierwszego elementu listy uzytkownicy
+        msg: "Pierwszy uzytkownik: TODO"
+
+    - name: 4. Grupy uzytkownika anna
+      ansible.builtin.debug:
+        # TODO: pole grupy DRUGIEGO elementu listy uzytkownicy
+        msg: "Grupy anny: TODO"
+
+    - name: 5. Baza danych srodowiska prod
+      ansible.builtin.debug:
+        # TODO: db_host ze slownika srodowiska, klucz prod
+        #       sprobuj OBU zapisow: kropka i ['klucz']
+        msg: "Prod laczy sie z baza: TODO"
+
+    - name: 6. Petla po uzytkownikach — imie i rola
+      ansible.builtin.debug:
+        # TODO: uzyj item.name oraz item.role
+        msg: "TODO"
+      loop: "{{ uzytkownicy }}"

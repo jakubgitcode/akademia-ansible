@@ -1,0 +1,46 @@
+---
+# L14, część B — awaria do zdiagnozowania. Psuje jedną warstwę: bazę, aplikację albo load balancer.
+#   ansible-playbook awaria.yml                    # warstwa losowa — nie zaglądaj do wyniku, szukaj przyczyny
+#   ansible-playbook awaria.yml -e awaria=baza     # konkretna warstwa: baza, aplikacja, balanser
+# Naprawa: znajdź przyczynę, a potem ansible-playbook site.yml.
+
+- name: Losowanie warstwy
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Wybierz warstwę do zepsucia
+      ansible.builtin.set_fact:
+        awaria_warstwa: "{{ awaria | default(['baza', 'aplikacja', 'balanser'] | random) }}"
+
+- name: Awaria bazy danych
+  hosts: databases
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Zatrzymaj MySQL
+      ansible.builtin.service:
+        name: mysql
+        state: stopped
+      when: hostvars['localhost'].awaria_warstwa == 'baza'
+
+- name: Awaria jednego serwera aplikacji
+  hosts: appservers[0]
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Zatrzymaj Apache
+      ansible.builtin.service:
+        name: apache2
+        state: stopped
+      when: hostvars['localhost'].awaria_warstwa == 'aplikacja'
+
+- name: Awaria load balancera
+  hosts: loadbalancers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Zatrzymaj nginx
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+      when: hostvars['localhost'].awaria_warstwa == 'balanser'

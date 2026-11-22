@@ -1,0 +1,17 @@
+---
+# Dni 3–5, środowisko prod: web01 (load balancer + baza), web02 i web03 (aplikacja) na maszynach w chmurze.
+# Adresy: host_vars/. Użycie — drugi -i obok inventory labu, np. w dniu 4:
+#   ansible-playbook -i inventories/prod -i ~/akademia-ansible/inventory/szkolenie/prod.yml site.yml
+# Grupy warstw (loadbalancers, appservers, databases) przychodzą z inventory labu; tu tylko hosty.
+all:
+  children:
+    chmura:
+      hosts:
+        web01:
+        web02:
+        web03:
+    apache:
+      hosts:
+        web01:
+        web02:
+        web03:

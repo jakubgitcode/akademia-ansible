@@ -1,0 +1,4 @@
+---
+# Zmienne dla wszystkich hostów (specjalna grupa "all").
+# L5, krok 2: odkomentuj poniższą linię.
+# ciekawa_zmienna: "z group_vars/all.yml"

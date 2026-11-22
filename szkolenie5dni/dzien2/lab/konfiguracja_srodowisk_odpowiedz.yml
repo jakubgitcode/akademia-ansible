@@ -1,0 +1,37 @@
+---
+# L7, krok 4 — konfiguracja per środowisko (ROZWIĄZANIE)
+# Uruchomienie:
+#   ansible-playbook konfiguracja_srodowisk_odpowiedz.yml
+
+- name: Konfiguracja aplikacji per środowisko
+  hosts: webservers
+  become: true
+
+  tasks:
+
+    - name: Katalog konfiguracji
+      ansible.builtin.file:
+        path: /etc/szkolenie
+        state: directory
+        mode: '0755'
+
+    - name: Wygeneruj konfigurację środowiskową
+      ansible.builtin.template:
+        src: templates/app_env.conf.j2
+        dest: /etc/szkolenie/app_env.conf
+        mode: '0644'
+
+    - name: Włącz flagę kopii zapasowej (tylko produkcja)
+      ansible.builtin.copy:
+        content: "backup=true\n"
+        dest: /etc/szkolenie/backup_enabled
+        mode: '0644'
+      when: "'prod' in group_names"
+
+    - name: Podsumowanie hosta
+      ansible.builtin.debug:
+        msg: >
+          {{ inventory_hostname }} → środowisko: {{ srodowisko | default('BRAK — uzupełnij group_vars!') }},
+          log_level={{ app_log_level | default('info') }},
+          repliki={{ app_replicas }},
+          debug={{ app_debug }}

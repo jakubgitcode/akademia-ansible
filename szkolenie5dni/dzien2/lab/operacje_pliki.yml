@@ -1,0 +1,75 @@
+---
+# L6, część B — pliki konfiguracyjne: template, copy, lineinfile, blockinfile, fetch
+# Uruchomienie:
+#   ansible-playbook operacje_pliki.yml --check --diff
+#   ansible-playbook operacje_pliki.yml
+#
+# Uzupełnij miejsca oznaczone # TODO
+
+- name: Standard firmowy — pliki konfiguracyjne
+  hosts: webservers
+  become: true
+
+  vars:
+    katalog_konfiguracji: /etc/szkolenie
+    plik_konfiguracji: /etc/szkolenie/app.conf
+
+  tasks:
+
+    # GOTOWE — przeczytaj: template + backup (obejrzyj też templates/motd.j2)
+    - name: Firmowy MOTD z szablonu
+      ansible.builtin.template:
+        src: templates/motd.j2
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+
+    - name: Katalog konfiguracji aplikacji
+      ansible.builtin.file:
+        path: "{{ katalog_konfiguracji }}"
+        state: directory
+        mode: '0755'
+
+    # GOTOWE — przeczytaj: po co tu force: false?
+    # (co by się działo z log_level przy każdym uruchomieniu bez tej opcji?)
+    - name: Konfiguracja początkowa aplikacji (tylko gdy pliku jeszcze nie ma)
+      ansible.builtin.copy:
+        content: |
+          # Konfiguracja aplikacji szkoleniowej
+          app_name=sklep
+          log_level=info
+          port=8080
+        dest: "{{ plik_konfiguracji }}"
+        mode: '0644'
+        force: false
+
+    - name: Włącz logowanie debug
+      # TODO: moduł ansible.builtin.lineinfile
+      #       plik: "{{ plik_konfiguracji }}"
+      #       znajdź linię zaczynającą się od log_level=   (regexp: '^log_level=')
+      #       zamień ją na: log_level=debug
+
+    - name: Dopisz sekcję monitoringu
+      # TODO: moduł ansible.builtin.blockinfile
+      #       plik: "{{ plik_konfiguracji }}"
+      #       marker: "# {mark} ANSIBLE MANAGED — monitoring"
+      #       block (dwie linie):
+      #         monitoring_enabled=true
+      #         monitoring_port=9100
+
+    - name: Pobierz gotową konfigurację z hostów
+      # TODO: moduł ansible.builtin.fetch
+      #       src: "{{ plik_konfiguracji }}"
+      #       dest: pobrane/      (katalog na control node)
+
+    # GOTOWE — pokazujemy efekt końcowy
+    - name: Odczytaj końcową zawartość pliku
+      ansible.builtin.command: "cat {{ plik_konfiguracji }}"
+      register: konfiguracja
+      changed_when: false
+
+    - name: Pokaż końcową konfigurację
+      ansible.builtin.debug:
+        msg: "{{ konfiguracja.stdout_lines }}"

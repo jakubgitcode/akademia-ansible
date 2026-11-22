@@ -1,0 +1,7 @@
+---
+# Dane połączenia dla wszystkich hostów (localhost ma ansible_connection: local, więc ich nie używa).
+ansible_user: ubuntu
+ansible_ssh_private_key_file: ~/.ssh/akademia_lab_key
+# Kontenery labu dostają nowe klucze SSH przy każdym setup.sh — nie zapisuj ich w known_hosts.
+# (StrictHostKeyChecking=no daje host_key_checking = False w ansible.cfg)
+ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null"

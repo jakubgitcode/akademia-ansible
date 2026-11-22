@@ -1,0 +1,13 @@
+---
+# Zmienne warstwy bazy danych (hosty z grupy databases): parametry roli geerlingguy.mysql.
+# Opis wszystkich parametrów: galaxy/roles/geerlingguy.mysql/README.md i defaults/main.yml (po L12).
+#
+# TODO (L13, krok 3): uzupełnij
+#   mysql_root_password:          hasło roota MySQL (dowolne; w dniu 4 — vault)
+#   mysql_python_package_debian:  python3-pymysql   (sterownik, którego używa kolekcja community.mysql)
+#   mysql_bind_address:           "0.0.0.0"  (domyślne w roli; wpisz jawnie — aplikacje łączą się z innych hostów)
+#   mysql_databases:              lista z jedną bazą: name: "{{ db_nazwa }}"
+#   mysql_users:                  lista z jednym użytkownikiem:
+#                                   name: "{{ db_uzytkownik }}", password: "{{ db_haslo }}",
+#                                   host: "%"   (łączy się z innych hostów),
+#                                   priv: "{{ db_nazwa }}.*:ALL"

@@ -1,0 +1,13 @@
+---
+# Zmienne środowiska DEV wspólne dla wszystkich warstw (ROZWIĄZANIE).
+srodowisko: dev
+
+db_nazwa: naszaaplikacja
+db_uzytkownik: naszaaplikacja
+db_haslo: "{{ vault_db_haslo }}"
+db_haslo_root: "{{ vault_db_haslo_root }}"     # hasło roota MySQL
+
+# Wszystko na jednym hoście: nginx zajmuje port 80, więc aplikacja słucha na 8080,
+# a load balancer kieruje ruch na ten port.
+aplikacja_port: 8080
+loadbalancer_port_backendow: "{{ aplikacja_port }}"
