@@ -24,7 +24,7 @@ Na szkoleniu z prowadzącym masz maszynę z gotowym środowiskiem — zaloguj si
 Samodzielnie (Linux, macOS albo Windows z WSL2; potrzebny Docker):
 
 ```bash
-git clone <adres tego repozytorium> ~/akademia-ansible
+git clone https://github.com/jakubgitcode/akademia-ansible.git ~/akademia-ansible
 cd ~/akademia-ansible/lab-env && ./setup.sh       # hosty web01–web04
 cd ~/akademia-ansible/szkolenie5dni/dzien1/lab && cat README.md  # od tego zaczynasz
 ```
