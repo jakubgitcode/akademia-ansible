@@ -21,6 +21,12 @@ Pełna lista: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_v
 
 **Zasada ćwiczenia:** przed każdym uruchomieniem zapisz, jaki wynik przewidujesz dla web01 i web02. Potem sprawdź.
 
+> **Co sprawdzić, gdy wynik jest inny niż przewidywany**
+> - Odkomentowując, usuń `# ` razem ze spacją — `ciekawa_zmienna:` ma zaczynać się od początku linii.
+> - `ansible-inventory -i inventory/hosts.yml --host web01` — wartości z inventory (group_vars, host_vars) tak,
+>   jak widzi je Ansible; `vars` z playbooka i `-e` tu nie widać.
+> - `ansible-inventory -i inventory/hosts.yml --graph` — do jakich grup należy host (web01 i web02 są w różnych).
+
 ---
 
 ## Krok 1 — Zmienna, której nie ma

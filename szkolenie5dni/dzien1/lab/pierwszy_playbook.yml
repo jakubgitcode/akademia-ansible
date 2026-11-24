@@ -3,7 +3,10 @@
 # Uruchomienie:
 #   ansible-playbook -i inventory/hosts.yml pierwszy_playbook.yml
 #
-# Uzupelnij miejsca oznaczone # TODO
+# Uzupelnij miejsca oznaczone # TODO.
+# Playbook dziala od razu: zadania do uzupelnienia maja na razie zastepczy debug z napisem TODO.
+# Uzupelniaj po jednym zadaniu i uruchamiaj playbook po kazdej zmianie (zastepczy debug usun).
+# Dokumentacja modulu: ansible-doc ansible.builtin.file   (sekcja EXAMPLES na koncu: q konczy, /EXAMPLES szuka)
 
 - name: Pierwszy playbook — poznajemy hosty
   hosts: all
@@ -18,6 +21,8 @@
 
     - name: Sprawdz polaczenie
       # TODO: Uzyj modulu ansible.builtin.ping (modul nie przyjmuje parametrow)
+      ansible.builtin.debug:
+        msg: "TODO: zamien to zadanie na modul ansible.builtin.ping"
 
     - name: Przedstaw hosta
       ansible.builtin.debug:
@@ -29,12 +34,17 @@
     - name: Wyswietl powitanie
       # TODO: Uzyj modulu ansible.builtin.debug
       #       Wyswietl wartosc zmiennej "powitanie"
+      ansible.builtin.debug:
+        msg: "TODO: wyswietl tu zmienna powitanie"
 
     - name: Stworz katalog laboratoryjny
       # TODO: Uzyj modulu ansible.builtin.file
       #       Sciezka: uzyj zmiennej katalog_lab
       #       Stan: directory
       #       Uprawnienia: '0755'
+      #       Sprawdz: ansible-doc ansible.builtin.file — parametry path, state, mode
+      ansible.builtin.debug:
+        msg: "TODO: zamien to zadanie na modul ansible.builtin.file"
 
     - name: Zapisz wizytowke hosta do pliku
       ansible.builtin.copy:
