@@ -29,6 +29,9 @@ Po każdym kroku uruchamiaj playbook. Zadania, do których jeszcze nie doszedłe
 ansible-playbook wgraj_aplikacje.yml       # na start: same komunikaty TODO, changed=0
 ```
 
+> **Gdzie szukać:** w każdym kroku `ansible-doc -s <moduł>` (parametry) i `ansible-doc <moduł>` → `/EXAMPLES`.
+> Typowe błędy (`conflicting action statements`, `Unsupported parameters`) i co z nimi zrobić — ramka w L6, krok 1.
+
 ### Krok 2 — Pakiety
 
 `ansible.builtin.apt` z **listą** pakietów w `name`: `apache2`, `libapache2-mod-wsgi-py3`, `python3-venv`

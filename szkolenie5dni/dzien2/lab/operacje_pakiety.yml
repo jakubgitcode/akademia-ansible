@@ -6,6 +6,8 @@
 #   ansible-playbook operacje_pakiety.yml
 #
 # Uzupełnij miejsca oznaczone # TODO
+# Playbook działa od razu: zadania z TODO mają zastępczy debug. Uzupełniaj po jednym zadaniu
+# i uruchamiaj po każdej zmianie. Dokumentacja modułu: ansible-doc ansible.builtin.apt (EXAMPLES na końcu).
 
 - name: Standard firmowy — pakiety i usługi
   hosts: webservers
@@ -19,23 +21,33 @@
       #       stan: present
       #       odśwież listę pakietów (update_cache), ale nie częściej
       #       niż raz na godzinę (cache_valid_time: 3600)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Zainstaluj firmowy zestaw narzędzi”"
 
     - name: Usuń nano razem z konfiguracją
       # TODO: moduł ansible.builtin.apt
       #       pakiet: nano, stan: absent
       #       usuń też pliki konfiguracyjne (purge)
       #       i niepotrzebne już zależności (autoremove)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Usuń nano razem z konfiguracją”"
 
     - name: Bezpieczna aktualizacja systemu
       # TODO: moduł ansible.builtin.apt, parametr upgrade: safe
       #       (najdłuższe zadanie labu: 1–3 minuty przy pierwszym uruchomieniu)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Bezpieczna aktualizacja systemu”"
 
     - name: Zainstaluj harmonogram zadań cron
       # TODO: moduł ansible.builtin.apt, pakiet cron
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Zainstaluj harmonogram zadań cron”"
 
     - name: Uruchom cron i włącz go przy starcie systemu
       # TODO: moduł ansible.builtin.service
       #       name: cron, state: started, enabled: true
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Uruchom cron i włącz go przy starcie systemu”"
 
     # Poniższe zadania są GOTOWE — przeczytaj je.
     # register i when omawiamy w bloku 3 (L7).

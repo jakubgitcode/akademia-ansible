@@ -39,6 +39,8 @@ ansible-playbook -i inventory/hosts.yml pierwszy_playbook.yml
 > - Wizytówka: nazwy faktów z TODO wstaw tak samo jak w zadaniu „Przedstaw hosta”.
 >
 > **Co sprawdzić, gdy coś nie działa**
+> - `conflicting action statements: ansible.builtin.ping, ansible.builtin.debug` — moduł jest już wpisany,
+>   ale w zadaniu został zastępczy `debug`; usuń go (z jego `msg`).
 > - `no module/action detected in task` — w zadaniu jest tylko `name:`, brakuje modułu.
 > - `mapping values are not allowed here` / `could not find expected ':'` — wcięcia albo brakujący dwukropek
 >   (linia i kolumna są w komunikacie; wcinaj spacjami, nie tabulatorem).

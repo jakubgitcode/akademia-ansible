@@ -6,6 +6,8 @@
 #   ansible-playbook petle.yml
 #
 # Uzupełnij miejsca oznaczone # TODO.
+# Playbook działa od razu: zadania z TODO mają zastępczy debug. Uzupełniaj po jednym zadaniu
+# i uruchamiaj po każdej zmianie. Dokumentacja modułu: ansible-doc ansible.builtin.apt (EXAMPLES na końcu).
 # Dane (listy) są w inventory/group_vars/all.yml — najpierw je obejrzyj.
 
 - name: Pętle w praktyce
@@ -19,6 +21,8 @@
       #       path: "{{ app_katalog }}/{{ item }}"
       #       state: directory, mode: '0755'
       #       pętla (loop) po liście katalogi_aplikacji
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Utwórz strukturę katalogów aplikacji”"
 
     - name: Utwórz użytkowników aplikacji (tylko aktywnych)
       # TODO: moduł ansible.builtin.user
@@ -27,6 +31,8 @@
       #       pętla po uzytkownicy_aplikacji
       #       warunek: tylko item.aktywny (pamiętaj o | bool)
       #       loop_control z label: "{{ item.name }}" (czytelny log)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Utwórz użytkowników aplikacji (tylko aktywnych)”"
 
     # GOTOWE — przeczytaj: register w pętli → wyniki są w liście .results
     - name: Sprawdź, czy są pliki konfiguracyjne
@@ -43,3 +49,5 @@
       #       msg: "BRAK pliku: {{ item.item }}"   ← item.item: element pierwotnej pętli
       #       pętla po konfigi.results
       #       warunek: plik NIE istnieje (item.stat.exists)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Zgłoś brakujące pliki”"

@@ -4,6 +4,8 @@
 #   ansible-playbook konfiguracja_srodowisk.yml
 #
 # Uzupełnij miejsca oznaczone # TODO.
+# Playbook działa od razu: zadania z TODO mają zastępczy debug. Uzupełniaj po jednym zadaniu
+# i uruchamiaj po każdej zmianie. Dokumentacja modułu: ansible-doc ansible.builtin.apt (EXAMPLES na końcu).
 # Ten playbook jest WSPÓLNY dla dev i prod — różnice pochodzą WYŁĄCZNIE ze zmiennych w inventory/group_vars/.
 
 - name: Konfiguracja aplikacji per środowisko
@@ -23,12 +25,16 @@
       #       src: templates/app_env.conf.j2   (obejrzyj szablon: default() i ternary())
       #       dest: /etc/szkolenie/app_env.conf
       #       mode: '0644'
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Wygeneruj konfigurację środowiskową”"
 
     - name: Włącz flagę kopii zapasowej (tylko produkcja)
       # TODO: moduł ansible.builtin.copy
       #       content: "backup=true\n"
       #       dest: /etc/szkolenie/backup_enabled, mode: '0644'
       #       warunek: host w grupie prod (group_names)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Włącz flagę kopii zapasowej (tylko produkcja)”"
 
     # GOTOWE — te same zmienne, różne wartości na każdym hoście
     - name: Podsumowanie hosta

@@ -19,6 +19,27 @@ Uzupełnij miejsca `# TODO`:
 
 Dwa ostatnie zadania (`stat`, `register`, `when`) są gotowe: przeczytaj je, wrócimy do nich w L7.
 
+Playbook działa od razu: zadania z `TODO` mają zastępczy `debug`. Uruchom go raz przed zmianami, potem uzupełniaj
+po jednym zadaniu (zastępczy `debug` usuń) i uruchamiaj po każdej zmianie — tak samo we wszystkich labach dnia 2.
+
+> **Gdzie szukać**
+> - `ansible-doc ansible.builtin.apt` — parametry modułu; na końcu **EXAMPLES** z gotowymi zadaniami
+>   (`/EXAMPLES` szuka, `q` kończy). Krócej: `ansible-doc -s ansible.builtin.apt` — same parametry.
+> - W przeglądarce: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
+>   (w adresie zamień `apt` na nazwę innego modułu: `service`, `lineinfile`, `blockinfile`, `fetch`…).
+>
+> **Podpowiedzi**
+> - Lista pakietów w `name`: `name: [htop, vim, curl, tree]` albo lista YAML z myślnikami pod `name:`.
+> - Parametry tak/nie (`update_cache`, `purge`, `autoremove`, `enabled`) zapisuj jako `true` / `false`.
+>
+> **Co sprawdzić, gdy coś nie działa**
+> - `conflicting action statements: ansible.builtin.apt, ansible.builtin.debug` — moduł jest już wpisany,
+>   ale w zadaniu został zastępczy `debug`; usuń go (z jego `msg`).
+> - `no module/action detected in task` — w zadaniu jest tylko `name:` i komentarze, brakuje modułu.
+> - `Unsupported parameters for (ansible.builtin.apt) module: …` — literówka w nazwie parametru albo parametr
+>   wcięty nie tam, gdzie trzeba (parametry modułu o 2 spacje głębiej niż nazwa modułu).
+> - `-v` pokazuje pełny wynik każdego zadania; `--start-at-task "Usuń nano razem z konfiguracją"` zaczyna od wskazanego.
+
 Dokumentacja modułu w konsoli: `ansible-doc ansible.builtin.apt` (przykłady na końcu: `/EXAMPLES`).
 
 ### Krok 2 — Uruchom w bezpiecznej kolejności
@@ -73,6 +94,11 @@ Uzupełnij `# TODO`:
 1. `log_level=info` → `log_level=debug`: `ansible.builtin.lineinfile` z `regexp: '^log_level='`.
 2. Sekcja monitoringu: `ansible.builtin.blockinfile` z własnym `marker`.
 3. Pobranie pliku ze wszystkich hostów do katalogu `pobrane/`: `ansible.builtin.fetch`.
+
+> **Podpowiedzi:** `ansible-doc -s ansible.builtin.lineinfile` (`path`, `regexp`, `line`),
+> `ansible-doc -s ansible.builtin.blockinfile` (`path`, `block`, `marker`) i `ansible-doc -s ansible.builtin.fetch`
+> (`src`, `dest`). Dwie linie w `block` zapisz blokiem YAML: `block: |` i linie pod spodem, wcięte głębiej.
+> Po uruchomieniu sprawdź treść pliku (zadanie „Pokaż końcową konfigurację”): czy `log_level` jest jeden?
 
 ```bash
 ansible-playbook operacje_pliki.yml --syntax-check

@@ -5,6 +5,8 @@
 #   ansible-playbook operacje_pliki.yml
 #
 # Uzupełnij miejsca oznaczone # TODO
+# Playbook działa od razu: zadania z TODO mają zastępczy debug. Uzupełniaj po jednym zadaniu
+# i uruchamiaj po każdej zmianie. Dokumentacja modułu: ansible-doc ansible.builtin.apt (EXAMPLES na końcu).
 
 - name: Standard firmowy — pliki konfiguracyjne
   hosts: webservers
@@ -50,6 +52,8 @@
       #       plik: "{{ plik_konfiguracji }}"
       #       znajdź linię zaczynającą się od log_level=   (regexp: '^log_level=')
       #       zamień ją na: log_level=debug
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Włącz logowanie debug”"
 
     - name: Dopisz sekcję monitoringu
       # TODO: moduł ansible.builtin.blockinfile
@@ -58,11 +62,15 @@
       #       block (dwie linie):
       #         monitoring_enabled=true
       #         monitoring_port=9100
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Dopisz sekcję monitoringu”"
 
     - name: Pobierz gotową konfigurację z hostów
       # TODO: moduł ansible.builtin.fetch
       #       src: "{{ plik_konfiguracji }}"
       #       dest: pobrane/      (katalog na control node)
+      ansible.builtin.debug:      # zastępczy — zamień na moduł z TODO
+        msg: "TODO: uzupełnij zadanie „Pobierz gotową konfigurację z hostów”"
 
     # GOTOWE — pokazujemy efekt końcowy
     - name: Odczytaj końcową zawartość pliku

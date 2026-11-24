@@ -5,6 +5,15 @@ różnice opisują wyłącznie zmienne w `inventory/group_vars/`.
 
 Kroki 1–3 są obowiązkowe, krok 4 — jeśli zdążysz (inaczej w domu).
 
+> **Gdzie szukać i co sprawdzić**
+> - `when`, `loop`, `register`, `loop_control` to słowa **zadania**, nie modułu: wcinasz je tak jak nazwę modułu,
+>   nie pod jego parametrami. Wcięte za głęboko dają `Unsupported parameters for (…) module: when`.
+> - W `when` nie piszesz `{{ }}` — to już jest wyrażenie Jinja: `when: item.aktywny | bool`.
+> - Warunek zaczynający się od cudzysłowu musi być w całości w cudzysłowie: `when: "'prod' in group_names"`.
+> - Co jest w zmiennej z `register`? Wyświetl ją: `ansible.builtin.debug: var=konfigi` (albo `var: konfigi`).
+> - Dokumentacja: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html
+>   i https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html (sekcje z przykładami).
+
 ## Krok 1 — Zmienne środowisk
 
 1. Obejrzyj `inventory/group_vars/all.yml` (wspólne wartości domyślne) i `inventory/group_vars/dev.yml`.
